@@ -7,10 +7,21 @@ option go_package = "otppb/";
 
 // OTP service
 service OtpService {
+  rpc hello(HelloRequest) returns (HelloResponse);
+
   rpc Create(CreateRequest) returns (CreateResponse);
   rpc Verify(VerifyRequest) returns (VerifyResponse);
   rpc Get(GetRequest) returns (GetResponse);
   rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
+}
+
+
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloResponse {
+  string message = 1;
 }
 
 // Create OTP request and response

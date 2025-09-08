@@ -15,7 +15,7 @@ service OtpService {
   rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
 }
 
-
+// Hello request and response
 message HelloRequest {
   string name = 1;
 }

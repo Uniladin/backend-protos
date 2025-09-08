@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package mediapb;
+option go_package = "mediapb/";
+
+service MediaService {
+  rpc UploadMedia(UploadMediaRequest) returns (UploadMediaResponse) {}
+  rpc GetMedia(GetMediaRequest) returns (GetMediaResponse) {}
+  rpc GetUserMedia(GetUserMediaRequest) returns (GetUserMediaResponse) {}
+  rpc DeleteMedia(DeleteMediaRequest) returns (DeleteMediaResponse) {}
+}
+
+message UploadMediaRequest {
+  string account_id = 1;
+  string media_type = 2;
+  bytes file_data = 3;
+  string file_name = 4;
+}
+
+message UploadMediaResponse {
+  bool success = 1;
+  MediaData media = 2;
+}
+
+message MediaData {
+  string id = 1;
+  string user_id = 2;
+  string type = 3;
+  string url = 4;
+  string status = 5;
+  string file_name = 6;
+  int64 file_size = 7;
+  string content_type = 8;
+  string created_at = 9;
+}
+
+message GetMediaRequest {
+  string media_id = 1;
+}
+
+message GetMediaResponse {
+  MediaData media = 1;
+}
+
+message GetUserMediaRequest {
+  string user_id = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message GetUserMediaResponse {
+  repeated MediaData media = 1;
+  int32 total = 2;
+}
+
+message DeleteMediaRequest {
+  string account_id = 1;
+  string media_id = 2;
+}
+
+message DeleteMediaResponse {
+  bool success = 1;
+}

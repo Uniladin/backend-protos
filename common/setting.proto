@@ -1,0 +1,254 @@
+syntax = "proto3";
+
+package settingpb;
+
+option go_package = "settingpb/";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+// Service Definition
+service SettingService {
+  // Account Settings
+  rpc GetAccountSetting(GetAccountSettingRequest) returns (GetAccountSettingResponse);
+  rpc UpdateSetting(UpdateSettingRequest) returns (google.protobuf.Empty);
+  rpc BlockUser(BlockUserRequest) returns (google.protobuf.Empty);
+  rpc UnblockUser(UnblockUserRequest) returns (google.protobuf.Empty);
+  rpc CreateReport(CreateReportRequest) returns (CreateReportResponse);
+  
+  // BFF Notification Settings
+  rpc GetNotificationBffSetting(GetNotificationBffSettingRequest) returns (NotificationBffSetting);
+  rpc UpdateNotificationBffSetting(UpdateNotificationBffSettingRequest) returns (google.protobuf.Empty);
+
+  // SOS Settings
+  rpc GetUserSOSSetting(GetUserSOSSettingRequest) returns (GetUserSOSSettingResponse);
+  rpc CreateSOSRequest(CreateSOSRequestRequest) returns (SOSRequest);
+  rpc RespondToSOSRequest(RespondToSOSRequestRequest) returns (SOSRequest);
+  rpc GetSOSRequests(GetSOSRequestsRequest) returns (GetSOSRequestsResponse);
+  rpc DeleteSOSRequest(DeleteSOSRequestRequest) returns (google.protobuf.Empty);
+  rpc GetSOSRequest(GetSOSRequestRequest) returns (SOSRequest);
+}
+
+// Privacy Setting
+message PrivacySetting {
+  string id = 1;
+  string account_id = 2;
+  string world_visibility = 3;      // Who can see my world? (Everyone, BFFs, Only me)
+  string location_visibility = 4;    // Who can see my locations?
+  string checkin_visibility = 5;     // Who can see my check-in log?
+  string message_permission = 6;     // Who can message me?
+  bool show_in_people_who_may_know = 7;
+  repeated string blacklisted_users = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
+}
+
+// System Setting represents user preferences for system-wide settings
+message SystemSetting {
+  // Basic fields
+  string id = 1;
+  string account_id = 2;
+
+  // Language and units
+  string language = 3;          // Language code (e.g., "en_US", "en_UK", "es", "de", "fr", "zh_CN", "ja", "vi", "ko", "pt")
+  string distance_units = 4;    // Distance unit ("miles" or "km")
+  
+  // Map settings
+  string map_style = 5;         // Map style ("auto", "light", "dark")
+  bool heatmap_enabled = 6;     // Toggle for heatmap visualization
+  bool weather_enabled = 7;     // Toggle for weather overlay
+  
+  // Metadata
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+// Notification Setting
+message NotificationSetting {
+  string id = 1;
+  string account_id = 2;
+  bool new_city = 3;           // When you visit a new city
+  bool checkin_reminder = 4;   // To check-in to the location you are visiting
+  bool new_follower = 5;       // When someone follows you
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+// BFF Notification Setting
+message NotificationBffSetting {
+  string id = 1;
+  string account_id = 2;
+  string bff_account_id = 3;
+  bool all_notifications = 4;  // Master toggle for all notifications from this BFF
+  bool new_country = 5;       // When BFF travels to a new country
+  bool city_arrival = 6;      // When BFF arrives in a city
+  bool near_me = 7;           // When BFF comes within 1km
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+// Ghost Mode Settings
+enum LocationVisibilityType {
+  VISIBILITY_TYPE_UNSPECIFIED = 0;
+  VISIBILITY_TYPE_PRECISE = 1;    // Accurate location in real time
+  VISIBILITY_TYPE_BLURRED = 2;    // Approximate location in real time
+  VISIBILITY_TYPE_FIXED = 3;      // Last known location, no updates
+  VISIBILITY_TYPE_HIDDEN = 4;     // Location completely hidden
+}
+
+
+message GhostModeSetting {
+  string bff_account_id = 1;
+  string duration = 2;
+  LocationVisibilityType visibility_type = 3;
+}
+
+// Meetup Setting
+message MeetupSetting {
+  bool visibility = 1;
+  string duration = 2;
+  string expiration = 3;
+}
+
+// Combined Settings
+message AccountSettings {
+  PrivacySetting privacy = 1;
+  SystemSetting system = 2;
+  NotificationSetting notification = 3;
+  MeetupSetting meetup = 4;
+  repeated GhostModeSetting ghost_mode = 5;
+  UserSOSSetting sos_setting = 6;
+}
+
+// Request/Response Messages
+message GetAccountSettingRequest {
+  string account_id = 1;
+  repeated string types = 2;  // Filter by setting types
+}
+
+message GetAccountSettingResponse {
+  AccountSettings settings = 1;
+}
+
+message GetNotificationBffSettingRequest {
+  string account_id = 1;
+  string bff_account_id = 2;
+}
+
+message GetNotificationBffSettingsResponse {
+  repeated NotificationBffSetting settings = 1;
+}
+
+message UpdateNotificationBffSettingRequest {
+  string account_id = 1;
+  NotificationBffSetting setting = 2;
+}
+
+message UpdateSettingRequest {
+  string account_id = 1;
+  oneof setting {
+    PrivacySetting privacy = 2;
+    SystemSetting system = 3;
+    NotificationSetting notification = 4;
+    UpdateGhostModeSetting ghost_mode = 5;
+    MeetupSetting meetup = 6;
+    UserSOSSetting sos_setting = 7;
+  }
+}
+
+message UpdateGhostModeSetting {
+  repeated string bff_account_ids = 1;
+  string duration = 2;
+  LocationVisibilityType visibility_type = 3;
+}
+
+// New request message for BlockUser RPC
+message BlockUserRequest {
+  string account_id = 1;        // The account ID of the user performing the block
+  string user_to_block_id = 2;  // The account ID of the user to be blocked
+}
+
+// New request message for UnblockUser RPC
+message UnblockUserRequest {
+  string account_id = 1;          // The account ID of the user performing the unblock
+  string user_to_unblock_id = 2;  // The account ID of the user to be unblocked
+}
+
+// Report message
+message Report {
+  string id = 1;
+  string account_id = 2;
+  string report_type = 3;
+  string content = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+  string reported_account_id = 7;
+}
+
+message CreateReportRequest {
+  string account_id = 1;
+  string report_type = 2;
+  string content = 3;
+  string reported_account_id = 4;
+}
+
+message CreateReportResponse {
+  Report report = 1;
+}
+
+// SOS Setting
+message SOSRequest {
+  string id = 1;
+  string requester_id = 2; // The one who requests
+  string responder_id = 3; // The one who is requested
+  string status = 4;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+// SOS Setting RPC Messages
+message CreateSOSRequestRequest {
+  string account_id = 1; // The one who requests
+  string friend_id = 2;  // The one who is requested
+}
+
+message RespondToSOSRequestRequest {
+  string account_id = 1; // The one responding
+  string request_id = 2; // The ID of the SOSSetting request
+  string status = 3; // "accepted" or "rejected"
+}
+
+message GetSOSRequestsRequest {
+  string account_id = 1;
+}
+
+message GetSOSRequestsResponse {
+  repeated SOSRequest sos_requests = 1;
+}
+
+message DeleteSOSRequestRequest {
+  string account_id = 1;
+  string sos_request_id = 2;
+}
+
+message GetSOSRequestRequest {
+  string request_id = 1;
+}
+
+// User's own SOS settings
+message UserSOSSetting {
+  string id = 1;
+  string account_id = 2;
+  bool add_button_sos_to_map = 3; // Default true, Tap to hide/show SOS button on the map
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+}
+
+message GetUserSOSSettingRequest {
+  string account_id = 1;
+}
+
+message GetUserSOSSettingResponse {
+  UserSOSSetting sos_setting = 1;
+  repeated SOSRequest sos_requests = 2;
+}

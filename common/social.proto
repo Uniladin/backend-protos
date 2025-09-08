@@ -1,0 +1,246 @@
+syntax = "proto3";
+
+package social;
+
+import "google/protobuf/empty.proto";
+
+// This is the Go package name
+option go_package = "socialpb/";
+
+service SocialService {
+  // Follow
+  rpc Follow(FollowRequest) returns (FollowResponse);
+  rpc Unfollow(UnfollowRequest) returns (UnfollowResponse);
+  rpc IsFollow(IsFollowRequest) returns (IsFollowResponse);
+
+  rpc GetFollowers(GetFollowersRequest) returns (GetFollowersResponse);
+  rpc GetFollowing(GetFollowingRequest) returns (GetFollowingResponse);
+
+  // Friends
+  rpc AddFriend(AddFriendRequest) returns (AddFriendResponse);
+  rpc GetFriendRequests(GetFriendRequestsRequest) returns (GetFriendRequestsResponse);
+  rpc GetSendFriendRequests(GetSendFriendRequestsRequest) returns (GetSendFriendRequestsResponse);
+  rpc AcceptFriend(AcceptFriendRequest) returns (AcceptFriendResponse);
+  rpc RejectFriend(RejectFriendRequest) returns (RejectFriendResponse);
+  rpc GetAllFriendRequests(GetAllFriendRequestsRequest) returns (GetAllFriendRequestsResponse);
+  
+  rpc GetFriends(GetFriendsRequest) returns (GetFriendsResponse);
+  rpc IsFriend(IsFriendRequest) returns (IsFriendResponse);
+  rpc UnFriend(UnFriendRequest) returns (UnFriendResponse);
+
+  // Additional methods for friends
+  rpc GetRelationshipByAccountId(GetRelationshipByAccountIdRequest) returns (GetRelationshipByAccountIdResponse);
+  rpc GetRelationshipByAccountIds(GetRelationshipByAccountIdsRequest) returns (GetRelationshipByAccountIdsResponse);
+
+  rpc GetFollowersCount(GetFollowersCountRequest) returns (GetFollowersCountResponse);
+
+  // Reset all relationships between two users
+  rpc ResetRelationship(ResetRelationshipRequest) returns (ResetRelationshipResponse);
+
+  // coming 
+  rpc CreateComing(CreateComingReq) returns (google.protobuf.Empty);
+  rpc GetComing(GetComingReq) returns (GetComingRes);
+  rpc DeleteComing(DeleteComingReq) returns (google.protobuf.Empty);
+
+  // Get suggested friends
+  rpc GetSuggestedFriends(GetSuggestedFriendsReq) returns (GetSuggestedFriendsRes);
+}
+
+message FollowRequest {
+  string account_id = 1;
+  string target_id = 2;
+}
+
+message FollowResponse {
+  bool success = 1;
+}
+
+message UnfollowRequest {
+  string account_id = 1;
+  string target_id = 2;
+}
+
+message UnfollowResponse {
+  bool success = 1;
+}
+
+message IsFollowRequest {
+  string account_id = 1;
+  string target_id = 2;
+}
+
+message IsFollowResponse {
+  bool is_follow = 1;
+}
+
+message GetFollowersRequest {
+  string account_id = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message GetFollowersResponse {
+  repeated string follower_ids = 1;
+}
+
+message GetFollowingRequest {
+  string account_id = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message GetFollowingResponse {
+  repeated string following_ids = 1;
+}
+
+// Friend 
+message GetFriendsRequest {
+  string account_id = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message GetFriendsResponse {
+  repeated string friend_ids = 1;
+}
+
+message IsFriendRequest {
+  string account_id = 1;
+  string target_id = 2;
+}
+
+message IsFriendResponse {
+  bool is_friend = 1;
+}
+
+message AddFriendRequest {
+  string account_id = 1;
+  string target_id = 2;
+}
+message AddFriendResponse {
+  bool success = 1;
+}
+
+message UnFriendRequest {
+  string account_id = 1;
+  string target_id = 2;
+}
+message UnFriendResponse {
+  bool success = 1;
+}
+
+message GetFriendRequestsRequest {
+  string account_id = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+message GetFriendRequestsResponse {
+  repeated string friend_request_ids = 1;
+}
+
+message AcceptFriendRequest {
+  string account_id = 1;
+  string target_id = 2;
+}
+message AcceptFriendResponse {
+  bool success = 1;
+}
+
+message RejectFriendRequest {
+  string account_id = 1;
+  string target_id = 2;
+}
+message RejectFriendResponse {
+  bool success = 1;
+}
+
+message GetSendFriendRequestsRequest {
+  string account_id = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+message GetSendFriendRequestsResponse {
+  repeated string friend_request_ids = 1;
+}
+
+message GetAllFriendRequestsRequest {
+  string account_id = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+message GetAllFriendRequestsResponse {
+  repeated string friend_request_ids = 1;
+}
+
+// Additional methods for friends
+message GetRelationshipByAccountIdRequest {
+  string account_id = 1;
+  string target_id = 2;
+}
+message GetRelationshipByAccountIdResponse {
+  bool is_friend = 1;
+  bool is_follower = 2;
+  bool is_following = 3;
+  bool is_request_sent = 4;
+  bool is_request_received = 5;
+  int32 days_as_friend = 6;
+}
+
+message GetRelationshipByAccountIdsRequest {
+  string account_id = 1;
+  repeated string target_ids = 2;
+}
+message GetRelationshipByAccountIdsResponse {
+  repeated string friend_ids = 1;
+  repeated string follower_ids = 2;
+  repeated string following_ids = 3;
+}
+
+message GetFollowersCountRequest {
+  string account_id = 1;
+}
+message GetFollowersCountResponse {
+  int32 count = 1;
+}
+
+// Coming
+message CreateComingReq {
+  string account_id = 1;
+  string target_id = 2;
+}
+
+message GetComingReq {
+  string account_id = 1;
+  string target_id = 2;
+}
+message GetComingRes {
+  bool is_coming = 1;
+}
+
+message DeleteComingReq {
+  string account_id = 1;
+  string target_id = 2;
+}
+
+// Suggested Friends
+message GetSuggestedFriendsReq {
+  string account_id = 1;
+  int32 limit = 2;
+}
+message SuggestedFriend{
+  string account_id = 1;
+  int32 mutual_friends_count = 2;
+}
+message GetSuggestedFriendsRes {
+  repeated SuggestedFriend suggested_friends = 1;
+}
+
+// Reset Relationship Messages
+message ResetRelationshipRequest {
+  repeated string account_ids = 1;
+}
+
+message ResetRelationshipResponse {
+  bool success = 1;
+  string message = 2;
+}

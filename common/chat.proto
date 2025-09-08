@@ -1,0 +1,285 @@
+syntax = "proto3";
+
+package chat;
+
+option go_package = "chatpb/";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+// ChatService defines all chat-related operations
+service ChatService {
+  // Chat Room Management
+  rpc CreateChatRoom(CreateChatRoomRequest) returns (CreateChatRoomResponse) {}
+  rpc GetChatRoom(GetChatRoomRequest) returns (GetChatRoomResponse) {}
+  rpc SearchChatRooms(SearchChatRoomsRequest) returns (SearchChatRoomsResponse) {}
+  rpc SearchChatRoomsByUsername(SearchChatRoomsByUsernameRequest) returns (SearchChatRoomsByUsernameResponse) {}
+  rpc GetChatRoomsByAccountID(GetChatRoomsByAccountIDRequest) returns (GetChatRoomsByAccountIDResponse) {}
+  rpc LeaveChat(LeaveChatRequest) returns (google.protobuf.Empty) {}
+  rpc DeclineAllPendingChatForAccount(DeclineAllPendingChatForAccountRequest) returns (google.protobuf.Empty) {}
+  rpc MuteChat(MuteChatRequest) returns (google.protobuf.Empty) {}
+  rpc UnmuteChat(UnmuteChatRequest) returns (google.protobuf.Empty) {}
+  rpc ChangeBackground(ChangeBackgroundRequest) returns (google.protobuf.Empty) {}
+  rpc GetChatRoomByParticipants(GetChatRoomByParticipantsRequest) returns (GetChatRoomByParticipantsResponse) {}
+
+  // Message Management
+  rpc SendMessage(SendMessageRequest) returns (SendMessageResponse) {}
+  rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse) {}
+  rpc LikeMessage(LikeMessageRequest) returns (LikeMessageResponse) {}
+  rpc UnlikeMessage(UnlikeMessageRequest) returns (UnlikeMessageResponse) {}
+  rpc MarkMessagesAsRead(MarkMessagesAsReadRequest) returns (google.protobuf.Empty) {}
+
+  // Participant Status Management (Simplified Chat System)
+  rpc UpdateParticipantStatus(UpdateParticipantStatusRequest) returns (google.protobuf.Empty) {}
+  rpc GetChatRoomsByParticipantStatus(GetChatRoomsByParticipantStatusRequest) returns (GetChatRoomsByParticipantStatusResponse) {}
+
+  // Mute/Unmute/Status
+  rpc GetMuteStatus(GetMuteStatusRequest) returns (GetMuteStatusResponse) {};
+
+  // Participant username management
+  rpc UpdateParticipantUsername(UpdateParticipantUsernameRequest) returns (UpdateParticipantUsernameResponse);
+}
+
+// Search Request
+message SearchChatRoomsRequest {
+  string account_id = 1;
+  string search_query = 2;  // Can be username or chat room name
+  int32 limit = 3;
+  string next_page_token = 4; // base64-encoded Cassandra paging state
+}
+
+message SearchChatRoomsResponse {
+  repeated ChatRoom chat_rooms = 1;
+  string next_page_token = 2; // base64-encoded Cassandra paging state for next page, empty if no more
+}
+
+// New Request/Response for username-specific search
+message SearchChatRoomsByUsernameRequest {
+  string current_account_id = 1; // ID of the user performing the search
+  string username_query = 2;     // Username string to search for in other participants
+  int32 limit = 3;
+  string page_state = 4;       // Opaque token for pagination (base64 encoded Cassandra page state)
+}
+
+message SearchChatRoomsByUsernameResponse {
+  repeated ChatRoom chat_rooms = 1;
+  string next_page_state = 2;  // Opaque token for the next page, empty if no more pages
+}
+
+// Chat Room Messages
+message CreateChatRoomRequest {
+  string creator_account_id = 1;
+  repeated string participants = 2;
+  string name = 3;           // Optional for group chats
+  string description = 4;    // Optional
+  string initial_message = 5; // Optional first message
+}
+
+message CreateChatRoomResponse {
+  ChatRoom chat_room = 1;
+}
+
+message GetChatRoomRequest {
+  string account_id = 1;
+  string chat_room_id = 2;
+}
+
+message GetChatRoomResponse {
+  ChatRoom chat_room = 1;
+}
+
+message GetChatRoomsByAccountIDRequest {
+  string account_id = 1;
+  int32 limit = 2;
+  string next_page_token = 3; // base64-encoded Cassandra paging state
+}
+
+message GetChatRoomsByAccountIDResponse {
+  repeated ChatRoom chat_rooms = 1;
+  string next_page_token = 2; // base64-encoded Cassandra paging state for next page, empty if no more
+}
+
+message LeaveChatRequest {
+  string chat_room_id = 1;
+  string account_id = 2;
+}
+
+message DeclineAllPendingChatForAccountRequest {
+  string account_id = 1;
+}
+
+message MuteChatRequest {
+  string chat_room_id = 1;
+  string account_id = 2;
+}
+
+message UnmuteChatRequest {
+  string chat_room_id = 1;
+  string account_id = 2;
+}
+
+message ChangeBackgroundRequest {
+  string chat_room_id = 1;
+  string account_id = 2;
+  string background_url = 3;
+}
+
+// Message Messages
+message SendMessageRequest {
+  string chat_room_id = 1;
+  string sender_account_id = 2;
+  string receiver_account_id = 3;  // Optional, for private messages
+  string content = 4;
+  string message_type = 5;
+  map<string, string> metadata = 6;  // For additional data like location coordinates, file info
+  string reply_to_message_id = 7;    // Optional, for reply messages
+  string reply_to_photo_id = 8;
+  bool isBlocked = 9;
+}
+
+message SendMessageResponse {
+  Message message = 1;
+}
+
+message GetMessagesRequest {
+  string chat_room_id = 1;
+  string account_id = 2;
+  int32 limit = 3;
+  string next_page_token = 4; // base64-encoded Cassandra paging state
+  google.protobuf.Timestamp before = 5;  // Optional, for pagination
+  repeated string message_types = 6; // Optional, filter by message types
+}
+
+message GetMessagesResponse {
+  repeated Message messages = 1;
+  string next_page_token = 2; // base64-encoded Cassandra paging state for next page, empty if no more
+  bool has_more = 3;
+}
+
+message LikeMessageRequest {
+  string message_id = 1;
+  string account_id = 2;
+  string chat_room_id = 3;
+  google.protobuf.Timestamp created_at = 4;
+}
+
+message UnlikeMessageRequest {
+  string message_id = 1;
+  string account_id = 2;
+}
+
+message LikeMessageResponse {
+  string message_id = 1;
+  string room_id = 2;
+  repeated string participants_ids = 3;
+}
+
+message UnlikeMessageResponse {
+  string message_id = 1;
+  string room_id = 2;
+  repeated string participants_ids = 3;
+}
+
+// Common Messages
+message ChatRoom {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string creator_account_id = 4;
+  repeated Participant participants = 5;
+  Message last_message = 6;
+  string status = 7;
+  string background_url = 8;
+  string background = 9;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+  bool is_group = 16;
+  int32 unread_count = 17;
+}
+
+// Participant represents a user in a chat room with their status and roles
+message Participant {
+  string account_id = 1;
+  string role = 2;                   // admin, member
+  bool is_muted = 3;
+  google.protobuf.Timestamp joined_at = 4;
+  google.protobuf.Timestamp last_read_at = 5;
+  string status = 6;                 // joined, pending, declined, blocked (replaces separate chat request concept)
+  string username = 7;
+  string background = 8;
+}
+
+message Message {
+  string id = 1;
+  string chat_room_id = 2;
+  string sender_account_id = 3;
+  string receiver_account_id = 4;  // For private messages
+  string content = 5;
+  string message_type = 6;
+  map<string, string> metadata = 7;
+  string reply_to_message_id = 8;
+  repeated string liked_by = 9;
+  string status = 10;  // sent, delivered, read
+  bool is_private = 11;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
+  Message reply_to_message = 14;
+  string reply_to_photo_id = 15;
+  bool is_blocked = 16;
+}
+
+message MarkMessagesAsReadRequest {
+  string chat_room_id = 1;
+  string account_id = 2;
+  google.protobuf.Timestamp until_time = 3;
+}
+
+message GetChatRoomByParticipantsRequest {
+  repeated string participant_ids = 1;
+}
+
+message GetChatRoomByParticipantsResponse {
+  bool exists = 1;
+  ChatRoom chat_room = 2;
+}
+
+// Participant Status Management
+message UpdateParticipantStatusRequest {
+  string chat_room_id = 1;
+  string account_id = 2;
+  string status = 3; // joined, pending, declined, blocked
+  string updated_by = 4; // account_id of the user who updated the status
+}
+
+message GetChatRoomsByParticipantStatusRequest {
+  string account_id = 1;
+  string status = 2; // joined, pending, declined, blocked
+  int32 limit = 3;
+  string next_page_token = 4;
+}
+
+message GetChatRoomsByParticipantStatusResponse {
+  repeated ChatRoom chat_rooms = 1;
+  string next_page_token = 2;
+}
+
+message GetMuteStatusRequest {
+  string chat_room_id = 1;
+  string account_id = 2;
+}
+
+message GetMuteStatusResponse {
+  bool is_muted = 1;
+  google.protobuf.Timestamp muted_until = 2;
+}
+
+// Request and Response for updating participant username
+message UpdateParticipantUsernameRequest {
+  string account_id = 1; // UUID of the account whose username is to be updated
+  string new_username = 2;
+}
+
+message UpdateParticipantUsernameResponse {
+  bool success = 1; // Indicates if the update process was initiated successfully
+  // Optionally, add an error message string here if needed, though gRPC errors are preferred.
+}

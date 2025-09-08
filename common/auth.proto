@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+package auth;
+
+// This is the Go package name
+option go_package = "authpb/";
+
+
+message Account {
+  string id = 1;
+  string phone = 2;
+}
+
+// Auth service
+service AuthService {
+    rpc Login (LoginRequest) returns (LoginResponse);
+    rpc LoginByPhone (LoginByPhoneRequest) returns (LoginResponse);
+    rpc Register (RegisterRequest) returns (RegisterResponse);
+    rpc RefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse);
+    rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
+    rpc CheckPhoneExists (CheckPhoneExistsRequest) returns (CheckPhoneExistsResponse);
+    rpc GetAccountsByPhone (GetAccountsByPhoneRequest) returns (GetAccountsByPhoneResponse);
+    rpc DeleteAccount (DeleteAccountRequest) returns (DeleteAccountResponse);
+    rpc GetMyAccount (GetMyAccountRequest) returns (GetMyAccountResponse);
+}
+
+// Login request and response
+message LoginRequest {
+    string phone = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    string access_token = 1;
+    string ws_token = 2;
+    string refresh_token = 3;
+    int32 expires_in = 4;
+}
+
+// Login by Phone request
+message LoginByPhoneRequest {
+    string phone = 1;
+}
+
+// Register request and response
+message RegisterRequest {
+    string phone = 1;
+    string password = 2;
+}
+
+message RegisterResponse {
+    string access_token = 1;
+    string ws_token = 2;
+    string refresh_token = 3;
+    int32 expires_in = 4;
+}
+
+// Refresh token request and response
+message RefreshTokenRequest {
+    string refresh_token = 1;
+}
+
+message RefreshTokenResponse {
+    string access_token = 1;
+    string ws_token = 2;
+    int32 expires_in = 3;
+}
+
+// Validate token request and response
+message ValidateTokenRequest {
+    string access_token = 1;
+}
+
+message ValidateTokenResponse {
+    bool is_valid = 1;
+    string user_id = 2;
+}
+
+// Check phone exists request and response
+message CheckPhoneExistsRequest {
+    string phone = 1;
+}
+
+message CheckPhoneExistsResponse {
+    bool exists = 1;
+}
+
+// Get user by phone numbers request and response
+message GetAccountsByPhoneRequest {
+    repeated string phone_numbers = 1;
+}
+
+message GetAccountsByPhoneResponse {
+    repeated Account accounts = 1;
+}
+
+// Delete account request and response
+message DeleteAccountRequest {
+    string account_id = 1;
+}
+
+message DeleteAccountResponse {
+    bool success = 1;
+}
+
+// Get my account request and response
+message GetMyAccountRequest {
+    string account_id = 1;
+}
+
+message GetMyAccountResponse {
+    string id = 1;
+    string phone = 2;
+}

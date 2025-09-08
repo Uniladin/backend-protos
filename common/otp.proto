@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package otp;
+
+// This is the Go package name
+option go_package = "otppb/";
+
+// OTP service
+service OtpService {
+  rpc Create(CreateRequest) returns (CreateResponse);
+  rpc Verify(VerifyRequest) returns (VerifyResponse);
+  rpc Get(GetRequest) returns (GetResponse);
+  rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
+}
+
+// Create OTP request and response
+message CreateRequest {
+  string phone_number = 1;
+}
+
+message CreateResponse {
+  bool status = 1;
+}
+
+// Verify OTP request and response
+message VerifyRequest {
+  string phone_number = 1;
+  string code = 2;
+}
+
+message VerifyResponse {
+  bool status = 1;
+}
+
+// Get OTP request and response
+message GetRequest {
+  string phone_number = 1;
+}
+
+message GetResponse {
+   string code = 1;
+}
+
+// Send message request and response
+message SendMessageRequest {
+  string phone_number = 1;
+  string message = 2;
+}
+
+message SendMessageResponse {
+  bool status = 1;
+}

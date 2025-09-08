@@ -1,0 +1,202 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+package profile;
+
+// This is the Go package name
+option go_package = "profilepb/";
+
+message Profile {
+  string id = 1;
+  string account_id = 2;
+  string username = 3;
+  string avatar_url = 4;
+  string gender = 5;
+  string birth_day = 6;
+  string mood = 7;
+  repeated string badges = 8;
+  bool is_subscription = 9;
+  bool is_adult = 10;
+}
+
+service ProfileService {
+  rpc Create(CreateRequest) returns (CreateResponse);
+  rpc Get(GetRequest) returns (Profile);
+  rpc GetByAccount(GetByAccountRequest) returns (Profile);
+  rpc GetByUsername(GetByUsernameRequest) returns (Profile);
+  rpc ListByAccounts(ListByAccountsRequest) returns (ListByAccountsResponse);
+  rpc Update(UpdateRequest) returns (Profile);
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
+  rpc CheckUsername(CheckUsernameRequest) returns (CheckUsernameResponse);
+  rpc GetListExcludedAccountID(GetListExcludedAccountIDRequest) returns (GetListExcludedAccountIDResponse);
+  rpc SearchByUsername(SearchByUsernameRequest) returns (SearchByUsernameResponse);
+  rpc GetProfilesByAccountID(GetProfilesByAccountIDRequest) returns (GetProfilesByAccountIDResponse);
+
+  // Additional methods for profile views
+  rpc RecordProfileView(RecordProfileViewReq) returns (google.protobuf.Empty);
+  rpc GetProfileViewers(GetProfileViewersReq) returns (GetProfileViewersRes);
+  rpc GetProfileViewersToday(GetProfileViewersTodayReq) returns (GetProfileViewersRes);
+
+  // Emoji transaction methods
+  rpc SendEmoji(SendEmojiRequest) returns (SendEmojiResponse);
+  rpc GetReceivedEmojis(GetReceivedEmojisRequest) returns (GetReceivedEmojisResponse);
+  rpc CountUnclaimedEmojis(CountUnclaimedEmojisRequest) returns (CountUnclaimedEmojisResponse);
+}
+
+message CreateRequest {
+  string account_id = 1;
+  string username = 2;
+  string avatar_url = 3;
+  string gender = 4;
+  string birth_day = 5;
+  string mood = 6;
+  bool is_adult = 7;
+}
+
+message CreateResponse {
+  Profile profile = 1;
+}
+
+message GetRequest {
+  string id = 1;
+}
+
+message GetByAccountRequest {
+  string account_id = 1;
+}
+
+message GetByUsernameRequest {
+  string username = 1;
+}
+
+message ListByAccountsRequest {
+  repeated string account_ids = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message ListByAccountsResponse {
+  repeated Profile profiles = 1;
+}
+
+message UpdateRequest {
+  string id = 1;
+  string username = 2;
+  string avatar_url = 3;
+  string gender = 4;
+  string birth_day = 5;
+  string mood = 6;
+  RepeatedStringValue badges = 7;
+  google.protobuf.BoolValue is_subscription = 8;
+  google.protobuf.BoolValue is_adult = 9;
+}
+
+message UpdateResponse {
+  Profile profile = 1;
+}
+
+message DeleteRequest {
+  string account_id = 1;
+}
+
+message DeleteResponse {
+  bool success = 1;
+}
+
+message CheckUsernameRequest {
+  string username = 1;
+}
+
+message CheckUsernameResponse {
+  bool exists = 1;
+}
+
+message GetListExcludedAccountIDRequest {
+  string account_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message GetListExcludedAccountIDResponse {
+  repeated Profile profiles = 1;
+}
+
+message SearchByUsernameRequest {
+  string username = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message SearchByUsernameResponse {
+  repeated Profile profiles = 1;
+}
+
+message GetProfilesByAccountIDRequest {
+  repeated string account_ids = 1;
+}
+
+message GetProfilesByAccountIDResponse {
+  repeated Profile profiles = 1;
+}
+
+message RepeatedStringValue {
+  repeated string values = 1;
+}
+
+message RecordProfileViewReq {
+  string viewer_account_id = 1;
+  string account_id = 2;  
+}
+message GetProfileViewersReq {
+  string account_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+message GetProfileViewersRes {
+  repeated Profile viewers = 1;
+}
+message GetProfileViewersTodayReq {
+  string account_id = 1;
+}
+
+// Emoji transaction messages
+message SendEmojiRequest {
+  string sender_id = 1;
+  string recipient_id = 2;
+  string emoji_path = 3;
+  int32 quantity = 4;
+}
+
+message SendEmojiResponse {
+  string transaction_id = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+message GetReceivedEmojisRequest {
+  string recipient_id = 1;
+  int32 limit = 2;
+}
+
+message EmojiTransaction {
+  string transaction_id = 1;
+  Profile sender = 2;
+  string emoji_url = 3;
+  string emoji_path = 4;
+  int32 quantity = 5;
+  string sent_at = 6;
+}
+
+message GetReceivedEmojisResponse {
+  repeated EmojiTransaction emojis = 1;
+  int32 total = 2;
+}
+
+message CountUnclaimedEmojisRequest {
+  string recipient_id = 1;
+}
+
+message CountUnclaimedEmojisResponse {
+  int32 count = 1;
+}

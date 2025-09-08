@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package place;
+
+option go_package = "realtimepb/";
+
+service RealtimeService {
+  rpc SendMessage (SendMessageReq) returns (SendMessageRes);
+}
+
+message SendMessageReq {
+  repeated string subs = 1; 
+  string message = 2;
+}
+
+message SendMessageRes {
+  bool success = 1;
+}

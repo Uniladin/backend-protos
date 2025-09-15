@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package sharelink;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "sharelinkpb/";
+
+service ShareLinkService {
+  // Create a share link
+  rpc CreateShareLink(CreateShareLinkRequest) returns (CreateShareLinkResponse);
+  
+  // Get share link by short code
+  rpc GetShareLink(GetShareLinkRequest) returns (GetShareLinkResponse);
+}
+
+enum ShareType {
+  SHARE_TYPE_UNSPECIFIED = 0;
+  SHARE_TYPE_PLACE = 1;
+  SHARE_TYPE_PROFILE = 2;
+  SHARE_TYPE_LOCATION = 3;
+  SHARE_TYPE_PHOTO = 4;
+  SHARE_TYPE_HANGOUT = 5;
+  SHARE_TYPE_BADGES = 6;
+}
+
+message ShareLink {
+  string id = 1;
+  string short_code = 2;
+  string account_id = 3;
+  ShareType share_type = 4;
+  string resource_id = 5;
+  string title = 6;
+  string thumbnail = 7;
+  google.protobuf.Timestamp created_at = 8;
+  string metadata = 9;
+  string description = 10;
+  int32 view_count = 11;
+  bool is_active = 12;
+  google.protobuf.Timestamp updated_at = 13;
+  google.protobuf.Timestamp expires_at = 14;
+}
+
+message CreateShareLinkRequest {
+  string account_id = 1;
+  ShareType share_type = 2;
+  string resource_id = 3;
+  string title = 4;
+  string thumbnail = 5;
+  string metadata = 6;
+  string description = 7;
+  google.protobuf.Timestamp expires_at = 8;
+}
+
+message CreateShareLinkResponse {
+  ShareLink share_link = 1;
+  string short_url = 2;
+}
+
+message GetShareLinkRequest {
+  string short_code = 1;
+}
+
+message GetShareLinkResponse {
+  ShareLink share_link = 1;
+  string redirect_url = 2;
+}

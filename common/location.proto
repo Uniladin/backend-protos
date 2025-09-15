@@ -1,0 +1,175 @@
+syntax = "proto3";
+
+package location;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "locationpb/";
+
+service LocationService {
+  rpc UpdateLocation (UpdateLocationReq) returns (UpdateLocationRes);
+  rpc GetLocations (GetLocationsReq) returns (GetLocationsRes);
+  rpc GetFootprints (GetFootprintsReq) returns (GetFootprintsRes);
+  rpc GetRankings (GetRankingsReq) returns (GetRankingsRes);
+  rpc GetAccountsInBox (GetAccountsInBoxReq) returns (GetAccountsInBoxRes);
+  rpc GetRankingFriend (GetRankingFriendReq) returns (GetRankingFriendRes);
+
+  rpc UpdateLocationSummary (UpdateLocationSummaryReq) returns (google.protobuf.Empty);
+  rpc GetLocationSummary (GetLocationSummaryReq) returns (GetLocationSummaryRes);
+
+  rpc GetAccountByIds (GetAccountByIdsReq) returns (GetAccountsInBoxRes);
+  rpc GetFootprintsByAccount (GetFootprintsByAccountReq) returns (GetFootprintsRes);
+  rpc CheckLocationDuration (CheckLocationDurationReq) returns (CheckLocationDurationRes);
+}
+
+// Update location
+message UpdateLocationReq {
+  string account_id = 1;
+  double lat = 2;
+  double lng = 3;
+  double speed = 4;
+  int32 battery = 5;
+  double direction = 6;
+}
+
+message UpdateLocationRes {
+  bool success = 1;
+  double lat = 2;
+  double lng = 3;
+  bool has_visited = 4;
+}
+
+// Get current locations by account_ids
+message GetLocationsReq {
+  repeated string account_ids = 1;
+}
+
+message GetLocationsRes {
+  repeated Location locations = 1;
+}
+
+message Location {
+  string account_id = 1;
+  double lat = 2;
+  double lng = 3;
+  string timestamp = 4;
+  double speed = 5;
+  int32 battery = 6;
+  double direction = 7;
+}
+
+// Get footprints within bounding box
+message GetFootprintsReq {
+  string account_id = 1;
+  double min_lat = 2;
+  double min_lng = 3;
+  double max_lat = 4;
+  double max_lng = 5;
+}
+
+message GetFootprintsRes {
+  repeated Footprint locations = 1;
+}
+
+message Footprint {
+  double lat = 1;
+  double lng = 2;
+  uint64 h3_cell = 3;
+}
+
+// Get rankings by opened cells
+message GetRankingsReq {
+  double min_lat = 1;
+  double min_lng = 2;
+  double max_lat = 3;
+  double max_lng = 4;
+}
+
+message GetRankingsRes {
+  repeated Ranking accounts = 1;
+}
+
+message Ranking {
+  string account_id = 1;
+  int32 opened_cells = 2;
+}
+
+// Get current accounts in box
+message GetAccountsInBoxReq {
+  double min_lat = 1;
+  double min_lng = 2;
+  double max_lat = 3;
+  double max_lng = 4;
+}
+
+message GetAccountsInBoxRes {
+  repeated Account accounts = 1;
+}
+
+message Account {
+  string account_id = 1;
+  double lat = 2;
+  double lng = 3;
+  double speed = 4;
+  int32 battery = 5;
+  google.protobuf.Timestamp timestamp = 6;
+  double direction = 7;
+}
+
+// Update location summary
+message UpdateLocationSummaryReq {
+  string account_id = 1;
+  int64 country_id = 2;    
+  int64 province_id = 3;
+	int64 district_id = 4;
+  int64 ward_id = 5;
+} 
+
+message GetLocationSummaryReq {
+  string account_id = 1;
+  int32 level = 2; // 2: Country, 4: Province, 6: District, 8: Ward
+}
+
+message GetLocationSummaryRes {
+  repeated LocationSummary summaries = 1;
+}
+
+message LocationSummary {
+  int64 osm_id = 1;
+  int64 count = 2;
+}
+
+message GetAccountByIdsReq {
+  repeated string account_ids = 1;
+}
+
+message GetFootprintsByAccountReq {
+  string account_id = 1;
+}
+
+message GetRankingFriendReq {
+  repeated string account_ids = 1;
+  int64 osm_id = 2;
+  int64 osm_level = 3;
+  int32 limit = 4;
+}
+message GetRankingFriendRes {
+  repeated Ranking accounts = 1;
+}
+
+// Check location duration
+message CheckLocationDurationReq {
+  string account_id = 1;
+  double lat = 2;
+  double lng = 3;
+}
+
+message CheckLocationDurationRes {
+  bool success = 1;
+  int32 duration_seconds = 2;
+  bool can_checkin = 3;
+  string message = 4;
+  double distance_meters = 5;
+  google.protobuf.Timestamp session_start = 6;
+}

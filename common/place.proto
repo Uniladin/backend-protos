@@ -1,0 +1,593 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+package place;
+
+option go_package = "placepb/";
+
+service PlaceService {
+  rpc GetCategories (GetCategoriesReq) returns (GetCategoriesRes);
+
+  rpc CreatePlace (CreatePlaceReq) returns (CreatePlaceRes);
+  rpc GetPlaces (GetPlacesReq) returns (GetPlacesRes);
+  rpc GetPlacesByIds (GetPlacesByIdsReq) returns (GetPlacesByIdsRes);
+  rpc GetDetailPlace (GetDetailPlaceReq) returns (GetDetailPlaceRes);
+  rpc DeletePlace (DeletePlaceReq) returns (DeletePlaceRes);
+  rpc UpdatePlace (UpdatePlaceReq) returns (UpdatePlaceRes);
+
+  rpc CreateCheckin (CreateCheckinReq) returns (CreateCheckinRes);
+  rpc DeleteCheckin (DeleteCheckinReq) returns (DeleteCheckinRes);
+  rpc UpdateCheckinDuration (UpdateCheckinDurationReq) returns (UpdateCheckinDurationRes);
+  rpc UpdateCheckinDraftStatus (UpdateCheckinDraftStatusReq) returns (UpdateCheckinDraftStatusRes);
+  rpc GetCheckinByAccount (GetCheckinByAccountReq) returns (GetCheckinByAccountRes);
+  rpc GetCheckinByPlace (GetCheckinByPlaceReq) returns (GetCheckinByPlaceRes);
+
+  rpc GetAllPlaces (google.protobuf.Empty) returns (GetPlacesRes);
+
+  // News feed
+  // CRUD
+  rpc CreateNewsFeed (CreateNewsFeedReq) returns (CreateNewsFeedRes);
+  rpc UpdateNewsFeed (UpdateNewsFeedReq) returns (UpdateNewsFeedRes);
+  rpc DeleteNewsFeed (DeleteNewsFeedReq) returns (DeleteNewsFeedRes);
+  rpc GetNewsFeedById (GetNewsFeedByIdReq) returns (GetNewsFeedByIdRes);
+
+  // List APIs
+  rpc GetNewsFeedByAccountId (GetNewsFeedByAccountIdReq) returns (GetNewsFeedByAccountIdRes);
+  rpc GetNewsFeedByPlaceId (GetNewsFeedByPlaceIdReq) returns (GetNewsFeedByPlaceIdRes);
+
+  // Like / Unlike
+  rpc LikeNewsFeed (LikeNewsFeedReq) returns (LikeNewsFeedRes);
+  rpc UnlikeNewsFeed (UnlikeNewsFeedReq) returns (UnlikeNewsFeedRes);
+  rpc GetLikesByNewsFeedId (GetLikesByNewsFeedIdReq) returns (GetLikesByNewsFeedIdRes);
+
+  // View
+  rpc AddViewToNewsFeed (AddViewReq) returns (AddViewRes);
+  rpc GetViewsByNewsFeedId (GetViewsByNewsFeedIdReq) returns (GetViewsByNewsFeedIdRes);
+
+  rpc GetNewsFeedStats (GetNewsFeedStatsReq) returns (GetNewsFeedStatsRes);
+  
+  // search places
+  rpc SearchPlaces (SearchPlacesReq) returns (SearchPlacesRes);
+
+  // Like & Favorite Place
+  rpc LikePlace (LikePlaceReq) returns (google.protobuf.Empty);
+  rpc UnlikePlace (UnlikePlaceReq) returns (google.protobuf.Empty);
+  rpc GetLikedPlacesByAccountId (GetLikedPlacesByAccountIdReq) returns (GetLikedPlacesByAccountIdRes);
+  rpc CheckLikePlace (CheckLikePlaceReq) returns (CheckLikePlaceRes);
+  rpc CheckLikePlaceByIds (CheckLikePlaceByIdsReq) returns (CheckLikePlaceByIdsRes);
+
+  rpc FavoritePlace (FavoritePlaceReq) returns (google.protobuf.Empty);
+  rpc UnfavoritePlace (UnfavoritePlaceReq) returns (google.protobuf.Empty);
+  rpc GetFavoritePlacesByAccountId (GetFavoritePlacesByAccountIdReq) returns (GetFavoritePlacesByAccountIdRes);
+  rpc CheckFavoritePlace (CheckFavoritePlaceReq) returns (CheckFavoritePlaceRes);
+  rpc CheckFavoritePlaceByIds (CheckFavoritePlaceByIdsReq) returns (CheckFavoritePlaceByIdsRes);
+
+  rpc GetPlaceCounters (GetPlaceCountersReq) returns (PlaceCounters);
+  rpc GetPlaceCountersByIds (GetPlaceCountersByIdsReq) returns (GetPlaceCountersByIdsRes);
+
+  // Get user checked-in places
+  rpc GetCheckedInPlaces (GetCheckedInPlacesReq) returns (GetCheckedInPlacesRes);
+  rpc GetRecentCheckins (GetRecentCheckinsReq) returns (GetRecentCheckinsRes);
+
+  // Place detect 
+  rpc CreateDetectedPlace (PlaceDetected) returns (google.protobuf.Empty);
+  rpc GetDetectedPlaces (GetDetectedPlacesReq) returns (GetDetectedPlacesRes);
+  rpc UpdateDetectedPlace (UpdateDetectedPlaceReq) returns (google.protobuf.Empty);
+  rpc UpdateTimeDetectedPlace (UpdateTimeDetectedPlaceReq) returns (google.protobuf.Empty);
+  rpc DeleteDetectedPlace (DeleteDetectedPlaceReq) returns (google.protobuf.Empty);
+  rpc GetDetectedPlaceById (GetDetectedPlaceByIdReq) returns (PlaceDetected);
+
+  // Ranking 
+  rpc PlaceRankingByCheckin (PlaceRankingByCheckinReq) returns (PlaceRankingByCheckinRes);
+  rpc AccountRankingByCheckin (AccountRankingByCheckinReq) returns (AccountRankingByCheckinRes);
+  rpc AccountRankingByPlace (AccountRankingByPlaceReq) returns (AccountRankingByPlaceRes);
+
+  // Get unique checkin count by district
+  rpc GetUniqueCheckinCountByDistrict (GetUniqueCheckinCountByDistrictReq) returns (GetUniqueCheckinCountByDistrictRes);
+}
+
+// Category
+message Category {
+  string id = 1;
+  string name = 2;
+  string icon = 3;
+}
+
+message GetCategoriesReq {
+  string search = 1;
+}
+
+message GetCategoriesRes {
+  repeated Category categories = 1;
+}
+
+// Place
+message Place {
+  string id = 1;
+  string owner_id = 2;
+  bool friends_only = 3;
+  string name = 4;
+  string address = 5;
+  double lat = 6;
+  double lng = 7;
+  string category_id = 8;
+  string checkin_at = 9; // YYYY-MM-DD HH:MM:SS
+}
+
+message CreatePlaceReq {
+  string name = 1;
+  string address = 2;
+  double lat = 3;
+  double lng = 4;
+  string category_id = 5;
+  string owner_id = 6;
+  bool friends_only = 7;
+
+  int64 country_id = 8;    
+  int64 province_id = 9;
+	int64 district_id = 10;
+  int64 ward_id = 11;
+}
+
+message CreatePlaceRes {
+  Place place = 1;
+}
+
+message GetPlacesReq {
+  double min_lat = 1;
+  double min_lng = 2;
+  double max_lat = 3;
+  double max_lng = 4;
+  int32 page_size = 5;
+  string next_page_token = 6;
+}
+
+message GetPlacesRes {
+  repeated Place places = 1;
+  string next_page_token = 2;
+}
+
+message GetPlacesByIdsReq {
+  repeated string place_ids = 1;
+}
+
+message GetPlacesByIdsRes {
+  repeated Place places = 1;
+}
+
+message GetDetailPlaceReq {
+  string place_id = 1;
+}
+
+message GetDetailPlaceRes {
+  Place place = 1;
+}
+
+message DeletePlaceReq {
+  string place_id = 1;
+}
+
+message DeletePlaceRes {
+  bool status = 1;
+}
+
+message UpdatePlaceReq {
+  string place_id = 1;
+  string name = 2;
+  string address = 3;
+  string category_id = 4;
+  optional bool friends_only = 5;
+}
+
+message UpdatePlaceRes {
+  bool status = 1;
+}
+
+// Checkin
+message Checkin {
+  string id = 1;
+  string place_id = 2;
+  string account_id = 3;
+  string created_at = 4; // YYYY-MM-DD HH:MM:SS
+  bool is_draft = 5;
+  int64 total_duration_minutes = 6;
+}
+
+message CreateCheckinReq {
+  string place_id = 2;
+  string account_id = 3;
+  optional bool is_draft = 4;
+  optional int64 total_duration_minutes = 5;
+}
+
+message CreateCheckinRes {
+  string checkin_id = 1;
+}
+
+message DeleteCheckinReq {
+  string checkin_id = 1;
+}
+
+message DeleteCheckinRes {
+  bool status = 1;
+}
+
+message GetCheckinByAccountReq {
+  string account_id = 1;
+  string start_date = 2;
+  string end_date = 3;
+  optional bool include_draft = 4; // true để lấy cả draft, false hoặc không có để lấy chỉ published
+}
+
+message GetCheckinByAccountRes {
+  repeated Checkin checkins = 1;
+}
+
+message GetCheckinByPlaceReq {
+  string place_id = 1;
+}
+
+message GetCheckinByPlaceRes {
+  repeated Checkin checkins = 1;
+}
+
+message UpdateCheckinDurationReq {
+  string checkin_id = 1;
+  int64 total_duration_minutes = 2;
+}
+
+message UpdateCheckinDurationRes {
+  bool status = 1;
+}
+
+message UpdateCheckinDraftStatusReq {
+  string checkin_id = 1;
+  bool is_draft = 2;
+}
+
+message UpdateCheckinDraftStatusRes {
+  bool status = 1;
+}
+
+// ----------- News Feed -------------
+// News Feed
+message NewsFeed {
+  string id = 1;
+  string account_id = 2;
+  string place_id = 3;
+  string content = 4;
+  string media_url = 5;
+  string media_type = 6;
+  string privacy = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+// ----------- CRUD -------------
+message CreateNewsFeedReq {
+  string account_id = 1;
+  string place_id = 2;
+  string content = 3;
+  string media_url = 4;
+  string privacy = 5; // "public", "friends"
+  string media_type = 6; // "image", "video"
+}
+
+message CreateNewsFeedRes {
+  NewsFeed feed = 1;
+}
+
+message UpdateNewsFeedReq {
+  string id = 1;
+  string content = 2;
+  string privacy = 3;
+}
+
+message UpdateNewsFeedRes {
+  NewsFeed feed = 1;
+}
+
+message DeleteNewsFeedReq {
+  string id = 1;
+}
+
+message DeleteNewsFeedRes {}
+
+message GetNewsFeedByIdReq {
+  string id = 1;
+}
+
+message GetNewsFeedByIdRes {
+  NewsFeed feed = 1;
+}
+
+// ----------- List by account/place -------------
+message GetNewsFeedByAccountIdReq {
+  string account_id = 1;
+  string privacy = 2; // "public", "friends"
+  string media_type = 3; // "image", "video"
+  string next_cursor = 4; // Optional for pagination
+  int32 page_size = 5; // Optional for pagination
+}
+
+message GetNewsFeedByAccountIdRes {
+  repeated NewsFeed feeds = 1;
+  string next_cursor = 2;
+}
+
+message GetNewsFeedByPlaceIdReq {
+  string place_id = 1;
+  string privacy = 2; // "public", "friends"
+  string media_type = 3; // "image", "video"
+  string next_cursor = 4;
+  int32 page_size = 5;
+}
+
+message GetNewsFeedByPlaceIdRes {
+  repeated NewsFeed feeds = 1;
+  string next_cursor = 2;
+}
+
+// ----------- Likes -------------
+message LikeNewsFeedReq {
+  string news_feed_id = 1;
+  string account_id = 2;
+}
+
+message LikeNewsFeedRes {}
+
+message UnlikeNewsFeedReq {
+  string news_feed_id = 1;
+  string account_id = 2;
+}
+
+message UnlikeNewsFeedRes {}
+
+message GetLikesByNewsFeedIdReq {
+  string news_feed_id = 1;
+  string next_cursor = 2;
+  int32 page_size = 3;
+}
+
+message GetLikesByNewsFeedIdRes {
+  repeated string account_ids = 1;
+  string next_cursor = 2;
+}
+
+// ----------- Views & Stats -------------
+message AddViewReq {
+  string news_feed_id = 1;
+  string account_id = 2;
+}
+
+message AddViewRes {}
+
+message GetViewsByNewsFeedIdReq {
+  string news_feed_id = 1;
+  string next_cursor = 2;
+  int32 page_size = 3;
+}
+message GetViewsByNewsFeedIdRes {
+  repeated string account_ids = 1;
+  string next_cursor = 2;
+}
+
+// ----------- Get stats -------------
+message GetNewsFeedStatsReq {
+  string news_feed_id = 1;
+}
+
+message GetNewsFeedStatsRes {
+  int64 like_count = 1;
+  int64 view_count = 2;
+}
+
+// ----------- Search Places -------------
+message SearchPlacesReq {
+  string Query = 1; // Search query
+} 
+
+message SearchPlacesRes {
+  repeated Place places = 1;
+}
+
+// ----------- Like & Favorite Place -------------
+// Like Place
+message LikePlaceReq {
+  string place_id = 1;
+  string account_id = 2;
+}
+message UnlikePlaceReq {
+  string place_id = 1;
+  string account_id = 2;
+}
+message GetLikedPlacesByAccountIdReq {
+  string account_id = 1;
+  int32 page_size = 2;
+  string next_page_token = 3;
+}
+message GetLikedPlacesByAccountIdRes {
+  repeated string place_ids = 1;
+  string next_page_token = 2;
+}
+message CheckLikePlaceReq {
+  string place_id = 1;
+  string account_id = 2;
+}
+message CheckLikePlaceRes {
+  bool is_liked = 1;
+}
+message CheckLikePlaceByIdsReq {
+  repeated string place_ids = 1;
+  string account_id = 2;
+}
+message CheckLikePlaceByIdsRes {
+  repeated string place_ids = 1; // List of place IDs that the account has liked
+}
+
+// Favorite Place
+message FavoritePlaceReq {
+  string place_id = 1;
+  string account_id = 2;
+}
+message UnfavoritePlaceReq {
+  string place_id = 1;
+  string account_id = 2;
+}
+message GetFavoritePlacesByAccountIdReq {
+  string account_id = 1;
+  int32 page_size = 2;
+  string next_page_token = 3;
+}
+message GetFavoritePlacesByAccountIdRes {
+  repeated string place_ids = 1;
+  string next_page_token = 2;
+}
+message CheckFavoritePlaceReq {
+  string place_id = 1;
+  string account_id = 2;
+}
+message CheckFavoritePlaceRes {
+  bool is_favorited = 1;
+}
+message CheckFavoritePlaceByIdsReq {
+  repeated string place_ids = 1;
+  string account_id = 2;
+}
+message CheckFavoritePlaceByIdsRes {
+  repeated string place_ids = 1; // List of place IDs that the account has favorited
+}
+
+// Place Counters
+message PlaceCounters {
+  int64 like_count = 1;
+  int64 favorite_count = 2;
+  int64 checkin_count = 3;
+}
+message GetPlaceCountersReq {
+  string place_id = 1;
+}
+message GetPlaceCountersByIdsReq {
+  repeated string place_ids = 1;
+}
+message GetPlaceCountersByIdsRes {
+  repeated PlaceCounters place_counters = 1;
+}
+
+// ---- Get user checked-in places ----
+message GetCheckedInPlacesReq {
+  string account_id = 1;
+}
+message GetCheckedInPlacesRes {
+  repeated string place_ids = 1; // List of place IDs where the user has checked in
+}
+
+message GetRecentCheckinsReq {
+  string account_id = 1;
+  int32 limit = 2; // Optional, default to 10
+}
+message GetRecentCheckinsRes {
+  repeated Checkin checkins = 1; // List of recent check-ins
+}
+
+// ---- Detected Places ----
+
+// define the type of place
+enum PlaceTypeDetected {
+  PLACE_TYPE_UNSPECIFIED = 0;
+  HOME = 1;
+  SCHOOL = 2;
+  WORK = 3;
+}
+message PlaceDetected {
+  string place_id = 1;
+  string account_id = 2; 
+  PlaceTypeDetected place_type = 3;
+  string address = 4;
+  double lat = 5;
+  double lng = 6;
+  google.protobuf.Timestamp first_seen_at = 7;
+  google.protobuf.Timestamp last_seen_at = 8;
+  int32 total_days = 9;
+  int64 total_duration_seconds = 10;
+}
+
+message GetDetectedPlacesReq {
+  string account_id = 1;
+}
+message GetDetectedPlacesRes {
+  repeated PlaceDetected places = 1;
+}
+
+message UpdateDetectedPlaceReq {
+  string account_id = 1;
+  string place_id = 2;
+  string address = 3;
+  double lat = 4;
+  double lng = 5;
+}
+
+message UpdateTimeDetectedPlaceReq {
+  string account_id = 1;
+  string place_id = 2;
+  int64 duration_seconds = 3;
+  int32 days = 4;
+  google.protobuf.Timestamp last_seen_at = 5;
+}
+
+message DeleteDetectedPlaceReq {
+  string account_id = 1;
+  string place_id = 2;
+}
+
+message GetDetectedPlaceByIdReq {
+  string account_id = 1;
+  string place_id = 2;
+}
+
+// Ranking
+message PlaceRanking {
+  string place_id = 1;
+  int64 checkin_count = 2;
+}
+message PlaceRankingByCheckinReq {
+  int64 osm_id = 1;
+  int32 osm_level = 2;
+  string place_type = 3;
+}
+message PlaceRankingByCheckinRes {
+  repeated PlaceRanking place_rankings = 1; 
+}
+
+message AccountRanking {
+  string account_id = 1;
+  int64 checkin_count = 2;
+}
+message AccountRankingByCheckinReq {
+  int64 osm_id = 1;
+  int32 osm_level = 2;
+  string place_type = 3;
+}
+message AccountRankingByCheckinRes {
+  repeated AccountRanking account_rankings = 1;
+}
+
+message AccountRankingByPlaceReq {
+  string place_id = 1;
+}
+message AccountRankingByPlaceRes {
+  repeated AccountRanking account_rankings = 1;
+}
+
+// Get unique checkin count by district
+message GetUniqueCheckinCountByDistrictReq {
+  string account_id = 1;
+  int64 district_id = 2;
+}
+
+message GetUniqueCheckinCountByDistrictRes {
+  int64 unique_place_count = 1;
+  int64 total_checkin_count = 2;
+}

@@ -1,0 +1,150 @@
+syntax = "proto3";
+
+package lalatok_mission_service;
+
+// This is the Go package name
+option go_package = "missionpb/";
+
+import "google/protobuf/timestamp.proto"; // For timestamp fields
+import "google/protobuf/struct.proto";    // For Criterion parameters
+
+service MissionService {
+  // Get a user's mission list with their progress status.
+  rpc ListUserMissionStatus(ListUserMissionStatusRequest) returns (ListUserMissionStatusResponse);
+  // Update mission progress based on user actions/events and automatically claim rewards.
+  rpc UpdateMissionProgress(UpdateMissionProgressRequest) returns (UpdateMissionProgressResponse);
+  // Get a user's earned badges.
+  rpc ListUserBadges(ListUserBadgesRequest) returns (ListUserBadgesResponse);
+  // Get a list of badges by their IDs.
+  rpc ListBadgesByIds(ListBadgesByIdsRequest) returns (ListBadgesByIdsResponse);
+}
+
+// --- Shared Messages ---
+
+message Criterion {
+  string type = 1;                       // e.g., "check_in_count", "photo_upload_count"
+  google.protobuf.Struct parameters = 2; // Specific parameters for the criterion type
+  string description = 3;                // Optional: Human-readable description
+}
+
+message Mission {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string badge_id_reward = 4;
+  string badge_name = 5;      // Denormalized from Badge entity
+  string badge_icon_url = 6;  // Denormalized from Badge entity
+  bool is_active = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+  repeated Criterion completion_criteria = 10;
+  int32 points_reward = 11;
+  google.protobuf.Timestamp starts_at = 12; // Optional
+  google.protobuf.Timestamp ends_at = 13;   // Optional
+}
+
+// --- User Mission Status Messages ---
+
+message ListUserMissionStatusRequest {
+  string user_id = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message UserMissionProgress {
+  string description = 1;
+  int32 current_value = 2;
+  int32 target_value = 3;
+}
+
+message UserMissionStatusEntry {
+  Mission mission_details = 1;
+  bool is_completed = 2;
+  google.protobuf.Timestamp completed_at = 3; // Null if not completed
+  repeated UserMissionProgress progress = 4;
+}
+
+message ListUserMissionStatusResponse {
+  repeated UserMissionStatusEntry mission_statuses = 1;
+  int32 total_available_missions = 2;
+}
+
+// --- Mission Progress Update Messages ---
+
+message UserCheckInEventParams {
+  string location_id = 1;
+  string city_id = 2;
+  string friend_id = 3;
+  string check_in_id = 4;
+}
+
+message UserLeaveFootprintEventParams {
+  string area_id = 1;
+  int32 neighborhood_rank = 2;
+  double area_percent = 3;
+}
+
+message UserUploadPhotoEventParams {
+  string location_id = 1;
+  string upload_date = 2; // YYYY-MM-DD
+}
+
+message UserLikePhotoEventParams {
+  int32 like_count = 1;
+}
+
+message UpdateMissionProgressRequest {
+  string user_id = 1;                           // ID of the user performing the action
+  string event_type = 2;                        // e.g., "user_check_in", "user_uploaded_photo"
+  oneof event_details {
+    UserCheckInEventParams check_in_params = 4;
+    UserLeaveFootprintEventParams leave_footprint_params = 5;
+    UserUploadPhotoEventParams upload_photo_params = 6;
+    UserLikePhotoEventParams like_photo_params = 7;
+  }
+}
+
+message CompletedMission {
+  string mission_id = 1;
+  string awarded_badge_id = 2;
+  string awarded_badge_name = 3; // Denormalized for convenience
+  int32 points_rewarded = 4;
+}
+
+message UpdateMissionProgressResponse {
+  bool success = 1;
+  repeated CompletedMission completed_missions = 2; // A list of missions completed by this event
+}
+
+// --- User Badge Messages ---
+
+message ListUserBadgesRequest {
+  string user_id = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message UserBadge {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string icon_url = 4;
+  string animated_url = 5;
+  google.protobuf.Timestamp earned_at = 6;
+}
+
+message ListUserBadgesResponse {
+  repeated UserBadge badges = 1;
+  int32 total_badges = 2;
+}
+
+// --- Badge By IDs ---
+
+message ListBadgesByIdsRequest {
+  repeated string ids = 1;
+  string user_id = 2;
+}
+
+message ListBadgesByIdsResponse {
+  repeated UserBadge badges = 1;
+}

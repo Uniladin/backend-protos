@@ -1,0 +1,168 @@
+syntax = "proto3";
+
+package payment;
+
+option go_package = "paymentpb/";
+
+import "google/protobuf/timestamp.proto";
+
+// ========== ENUMS ==========
+
+enum AppType {
+  APP_TYPE_UNKNOWN = 0;
+  APP_TYPE_IOS = 1;
+  APP_TYPE_ANDROID = 2;
+}
+
+enum PaymentProvider {
+  PAYMENT_PROVIDER_UNKNOWN = 0;
+  PAYMENT_PROVIDER_APPLE = 1;
+  PAYMENT_PROVIDER_GOOGLE = 2;
+}
+
+enum SubscriptionStatus {
+  SUBSCRIPTION_STATUS_UNKNOWN = 0;
+  ACTIVE = 1;
+  EXPIRED = 2;
+  IN_GRACE_PERIOD = 3;
+  ON_HOLD = 4;
+  PAUSED = 5;
+  CANCELED = 6;
+  REVOKED = 7;
+}
+
+// ========== SERVICE ==========
+
+service PaymentService {
+  // CompletePurchase is called by the client after a user completes an in-app purchase.
+  rpc CompletePurchase(CompletePurchaseRequest) returns (CompletePurchaseResponse);
+
+  // GetPaymentHistory retrieves the transaction history for a user.
+  rpc GetPaymentHistory(GetPaymentHistoryRequest) returns (GetPaymentHistoryResponse);
+
+  // GetUserSubscriptions retrieves the current subscriptions for a user.
+  rpc GetUserSubscriptions(GetUserSubscriptionsRequest) returns (GetUserSubscriptionsResponse);
+
+  // GetAllActiveSubscriptions retrieves all currently active subscriptions for expiry checking.
+  rpc GetAllActiveSubscriptions(GetAllActiveSubscriptionsRequest) returns (GetAllActiveSubscriptionsResponse);
+
+  // AppleServerNotification is the endpoint for Apple App Store server-to-server notifications.
+  rpc AppleServerNotification(AppleServerNotificationRequest) returns (AppleServerNotificationResponse);
+
+  // GoogleServerNotification is the endpoint for Google Play server-to-server notifications.
+  rpc GoogleServerNotification(GoogleServerNotificationRequest) returns (GoogleServerNotificationResponse);
+}
+
+// ========== MESSAGES ==========
+
+// --- CompletePurchase ---
+message IOSPurchaseInfo {
+  string transaction_receipt = 1; // JWS token from the client for iOS
+}
+
+message AndroidPurchaseInfo {
+  string product_id = 1;
+  string purchase_token = 2;
+  string package_name = 3;
+}
+
+message CompletePurchaseRequest {
+  AppType app_type = 1;
+  string account_id = 2;
+  oneof purchase_info {
+    IOSPurchaseInfo ios_purchase = 3;
+    AndroidPurchaseInfo android_purchase = 4;
+  }
+}
+
+message CompletePurchaseResponse {
+  SubscriptionItem subscription = 1;
+}
+
+// --- GetPaymentHistory ---
+message GetPaymentHistoryRequest {
+  string account_id = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message PaymentHistoryItem {
+  string id = 1;
+  int32 amount = 2;
+  string provider_name = 3;
+  string provider_transaction_id = 4;
+  string status = 5;
+  string product_id = 6;
+  google.protobuf.Timestamp created_at = 7;
+}
+
+message GetPaymentHistoryResponse {
+  repeated PaymentHistoryItem items = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 limit = 4;
+}
+
+// --- GetUserSubscriptions ---
+message GetUserSubscriptionsRequest {
+  string account_id = 1;
+}
+
+message SubscriptionItem {
+  string id = 1;
+  string product_id = 2;
+  PaymentProvider provider = 3;
+  google.protobuf.Timestamp start_date = 4;
+  google.protobuf.Timestamp end_date = 5;
+  bool is_cancelled = 6;
+  string environment = 7;
+  SubscriptionStatus status = 8;
+  // Renewal information fields
+  int32 auto_renew_status = 9;           // 0 = off, 1 = on
+  google.protobuf.Timestamp next_renewal_date = 10;
+  google.protobuf.Timestamp grace_period_end_date = 11;
+  bool is_in_billing_retry_period = 12;
+  int32 expiration_intent = 13;
+  google.protobuf.Timestamp recent_subscription_date = 14;
+}
+
+message GetUserSubscriptionsResponse {
+  repeated SubscriptionItem subscriptions = 1;
+  string subscription = 2;
+}
+
+// --- Apple Notifications ---
+message AppleServerNotificationRequest {
+  string signed_payload = 1;
+}
+
+message AppleServerNotificationResponse {
+  bool success = 1;
+}
+
+// --- Google Notifications ---
+// Represents the `message` part of a Pub/Sub push notification.
+message GoogleNotificationMessage {
+    string data = 1; // This is a base64-encoded string containing the actual notification JSON
+    string message_id = 2;
+    google.protobuf.Timestamp publish_time = 3;
+}
+
+// Represents the overall structure of a Google Pub/Sub push request.
+message GoogleServerNotificationRequest {
+    GoogleNotificationMessage message = 1;
+    string subscription = 2;
+}
+
+message GoogleServerNotificationResponse {
+    bool success = 1;
+}
+
+// --- GetAllActiveSubscriptions ---
+message GetAllActiveSubscriptionsRequest {
+  // Empty request - returns all active subscriptions
+}
+
+message GetAllActiveSubscriptionsResponse {
+  repeated SubscriptionItem subscriptions = 1;
+} 

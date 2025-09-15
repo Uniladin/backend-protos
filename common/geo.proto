@@ -1,0 +1,93 @@
+syntax = "proto3";
+
+package geo;
+
+// This is the Go package name
+option go_package = "geopb/";
+
+service GeoService {
+    rpc GetLocation (GetLocationRequest) returns (LocationDetail);
+    rpc GetLocations (GetLocationsRequest) returns (GetLocationsResponse);
+
+    rpc GetDistrictByIds (GetDistrictByIdsReq) returns (GetDistrictByIdsResp);
+
+    rpc SyncLocation (SyncLocationRequest) returns (SyncLocationResponse);
+    
+    // Search Places
+    rpc SearchPlaces (SearchPlacesRequest) returns (SearchPlacesResponse);
+}
+
+message Location {
+    double lat = 1;
+    double lng = 2;
+    string h3 = 3;
+}
+message LocationDetail {
+    double lat = 1;
+    double lng = 2;
+    string h3 = 3;
+    string country = 4;    
+    string province = 5;
+	string district = 6;
+    string ward = 7;
+    int64 country_id = 8;    
+    int64 province_id = 9;
+	int64 district_id = 10;
+    int64 ward_id = 11;
+    int32 cell_total = 12;
+}
+
+message GetLocationRequest {
+    double lat = 1;
+    double lng = 2;
+    string h3 = 3;
+}
+
+message GetLocationsRequest {
+    repeated Location locations = 1;
+}
+message GetLocationsResponse {
+    repeated LocationDetail locations = 1;
+}
+
+message SyncLocationRequest {
+    string path = 1;
+    int64 unitId = 2;
+    int32 level = 3;
+}
+message SyncLocationResponse {
+    string sync = 1;
+}
+
+message GetDistrictByIdsReq {
+    repeated int64 ids = 1;
+}
+message GetDistrictByIdsResp {
+    repeated LocationDetail districts = 1;
+}
+
+
+// Search Places Messages
+message SearchPlacesRequest {
+    double lat = 1;
+    double lng = 2;
+    string name = 3; // Optional - empty string means search all
+    int32 radius_meters = 4; // Default 1000m
+    int32 limit = 5; // Default 200
+    int32 offset = 6; // For pagination - default 0
+}
+
+message PlaceSearchResult {
+    string name = 1;
+    int64 osm_id = 2;
+    string amenity = 3;
+    string address = 4;
+    double distance_meters = 5;
+    double latitude = 6;
+    double longitude = 7;
+}
+
+message SearchPlacesResponse {
+    repeated PlaceSearchResult places = 1;
+    int32 total_count = 2;
+}

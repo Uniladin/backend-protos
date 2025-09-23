@@ -22,6 +22,8 @@ service AuthService {
     rpc GetAccountsByPhone (GetAccountsByPhoneRequest) returns (GetAccountsByPhoneResponse);
     rpc DeleteAccount (DeleteAccountRequest) returns (DeleteAccountResponse);
     rpc GetMyAccount (GetMyAccountRequest) returns (GetMyAccountResponse);
+    // Social login
+    rpc SocialLogin (SocialLoginRequest) returns (LoginSocialResponse);
 }
 
 // Login request and response
@@ -35,6 +37,16 @@ message LoginResponse {
     string ws_token = 2;
     string refresh_token = 3;
     int32 expires_in = 4;
+}
+
+message LoginSocialResponse {
+    string access_token = 1;
+    string ws_token = 2;
+    string refresh_token = 3;
+    int32 expires_in = 4;
+    string fullname = 5;
+    string email = 6;
+    string avatar_url = 7;
 }
 
 // Login by Phone request
@@ -111,4 +123,12 @@ message GetMyAccountRequest {
 message GetMyAccountResponse {
     string id = 1;
     string phone = 2;
+}
+
+// Social login request supports multiple providers and multi-audience for OIDC
+message SocialLoginRequest {
+    // provider values: GOOGLE, APPLE, FACEBOOK
+    string provider = 1;
+    // ID token for OIDC (Google, Apple) or access token for Facebook
+    string token = 2;
 }

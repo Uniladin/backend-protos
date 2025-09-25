@@ -7,8 +7,9 @@ option go_package = "authpb/";
 
 
 message Account {
-  string id = 1;
-  string phone = 2;
+    string id = 1;
+    string phone = 2;
+    string email = 3;
 }
 
 // Auth service
@@ -28,7 +29,7 @@ service AuthService {
 
 // Login request and response
 message LoginRequest {
-    string phone = 1;
+    string email = 1;
     string password = 2;
 }
 
@@ -46,7 +47,7 @@ message LoginByPhoneRequest {
 
 // Register request and response
 message RegisterRequest {
-    string phone = 1;
+    string email = 1;
     string password = 2;
 }
 

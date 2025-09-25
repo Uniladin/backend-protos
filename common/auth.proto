@@ -25,6 +25,9 @@ service AuthService {
     rpc GetMyAccount (GetMyAccountRequest) returns (GetMyAccountResponse);
     // Social login
     rpc SocialLogin (SocialLoginRequest) returns (LoginResponse);
+    // Change password (only requires user id and new password)
+    rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse);
+    rpc ChangePasswordByEmail (ChangePasswordByEmailRequest) returns (ChangePasswordResponse);
 }
 
 // Login request and response
@@ -53,6 +56,20 @@ message RegisterRequest {
 
 message RegisterResponse {
 	bool success = 1;
+}
+
+message ChangePasswordRequest {
+    string user_id = 1;
+    string new_password = 2;
+}
+
+message ChangePasswordResponse {
+    bool success = 1;
+}
+
+message ChangePasswordByEmailRequest {
+    string email = 1;
+    string new_password = 2;
 }
 
 // Refresh token request and response

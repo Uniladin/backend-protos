@@ -52,10 +52,7 @@ message RegisterRequest {
 }
 
 message RegisterResponse {
-    string access_token = 1;
-    string ws_token = 2;
-    string refresh_token = 3;
-    int32 expires_in = 4;
+	bool success = 1;
 }
 
 // Refresh token request and response

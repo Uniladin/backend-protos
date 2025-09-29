@@ -1,0 +1,288 @@
+syntax = "proto3";
+
+package post;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "postpb/";
+
+service PostService {
+  // Post operations
+  rpc CreatePost (CreatePostReq) returns (CreatePostRes);
+  rpc GetPost (GetPostReq) returns (GetPostRes);
+  rpc GetPosts (GetPostsReq) returns (GetPostsRes);
+  rpc UpdatePost (UpdatePostReq) returns (UpdatePostRes);
+  rpc DeletePost (DeletePostReq) returns (google.protobuf.Empty);
+  rpc GetPostsByAccount (GetPostsByAccountReq) returns (GetPostsRes);
+  rpc GetPostsByCategory (GetPostsByCategoryReq) returns (GetPostsRes);
+  rpc GetPostsByHashtag (GetPostsByHashtagReq) returns (GetPostsRes);
+  rpc SearchPosts (SearchPostsReq) returns (GetPostsRes);
+
+  // Like operations
+  rpc LikePost (LikePostReq) returns (google.protobuf.Empty);
+  rpc UnlikePost (UnlikePostReq) returns (google.protobuf.Empty);
+  rpc GetLikedPostsByAccount (GetLikedPostsByAccountReq) returns (GetPostsRes);
+  rpc CheckLikePost (CheckLikePostReq) returns (CheckLikePostRes);
+  rpc CheckLikePostByIds (CheckLikePostByIdsReq) returns (CheckLikePostByIdsRes);
+
+  // Favorite operations
+  rpc FavoritePost (FavoritePostReq) returns (google.protobuf.Empty);
+  rpc UnfavoritePost (UnfavoritePostReq) returns (google.protobuf.Empty);
+  rpc GetFavoritePostsByAccount (GetFavoritePostsByAccountReq) returns (GetPostsRes);
+  rpc CheckFavoritePost (CheckFavoritePostReq) returns (CheckFavoritePostRes);
+  rpc CheckFavoritePostByIds (CheckFavoritePostByIdsReq) returns (CheckFavoritePostByIdsRes);
+
+  // Category operations
+  rpc CreateCategory (CreateCategoryReq) returns (CreateCategoryRes);
+  rpc GetCategory (GetCategoryReq) returns (GetCategoryRes);
+  rpc GetCategories (GetCategoriesReq) returns (GetCategoriesRes);
+  rpc UpdateCategory (UpdateCategoryReq) returns (UpdateCategoryRes);
+  rpc DeleteCategory (DeleteCategoryReq) returns (google.protobuf.Empty);
+}
+
+// Post Messages
+message CreatePostReq {
+  string title = 1;
+  string description = 2;
+  repeated string hashtags = 3;
+  string category_id = 4;
+  Affiliate affiliate = 5;
+  string account_id = 6;
+  string media_url = 7;
+}
+
+message CreatePostRes {
+  bool success = 1;
+  string post_id = 2;
+  string message = 3;
+}
+
+message GetPostReq {
+  string post_id = 1;
+}
+
+message GetPostRes {
+  Post post = 1;
+}
+
+message GetPostsReq {
+  int32 limit = 1;
+  int32 offset = 2;
+  string sort_by = 3; // created_at, updated_at, popular
+  string order = 4; // asc, desc
+}
+
+message GetPostsRes {
+  repeated Post posts = 1;
+  int32 total = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message UpdatePostReq {
+  string post_id = 1;
+  string title = 2;
+  string description = 3;
+  repeated string hashtags = 4;
+  string category_id = 5;
+  Affiliate affiliate = 6;
+  string media_url = 7;
+}
+
+message UpdatePostRes {
+  bool success = 1;
+  string message = 2;
+}
+
+message DeletePostReq {
+  string post_id = 1;
+  string account_id = 2;
+}
+
+message GetPostsByAccountReq {
+  string account_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message GetPostsByCategoryReq {
+  string category_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message GetPostsByHashtagReq {
+  string hashtag = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message SearchPostsReq {
+  string query = 1;
+  repeated string hashtags = 2;
+  string category_id = 3;
+  int32 limit = 4;
+  int32 offset = 5;
+}
+
+// Category Messages
+message CreateCategoryReq {
+  string name = 1;
+  string description = 2;
+  string parent_id = 3; // For hierarchical categories
+  string icon = 4;
+  int32 sort_order = 5;
+}
+
+message CreateCategoryRes {
+  bool success = 1;
+  string category_id = 2;
+  string message = 3;
+}
+
+message GetCategoryReq {
+  string category_id = 1;
+}
+
+message GetCategoryRes {
+  Category category = 1;
+}
+
+message GetCategoriesReq {
+  string parent_id = 1; // Empty for root categories
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message GetCategoriesRes {
+  repeated Category categories = 1;
+  int32 total = 2;
+}
+
+message UpdateCategoryReq {
+  string category_id = 1;
+  string name = 2;
+  string description = 3;
+  string parent_id = 4;
+  string icon = 5;
+  int32 sort_order = 6;
+}
+
+message UpdateCategoryRes {
+  bool success = 1;
+  string message = 2;
+}
+
+message DeleteCategoryReq {
+  string category_id = 1;
+}
+
+// Data models
+message Post {
+  string id = 1;
+  string account_id = 2;
+  string title = 3;
+  string description = 4;
+  repeated string hashtags = 5;
+  string category_id = 6;
+  Affiliate affiliate = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+  int32 view_count = 10;
+  int32 like_count = 11;
+  int32 comment_count = 12;
+  int32 share_count = 13;
+  Category category = 14; // Include category details
+  string media_url = 15; // Single video/file link
+}
+
+message Category {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string parent_id = 4;
+  string icon = 5;
+  int32 sort_order = 6;
+  bool is_active = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+  int32 post_count = 10;
+}
+
+message Affiliate {
+  string link = 1;
+  string thumbnail = 2;
+  string title = 3;
+}
+
+
+// Like Messages
+message LikePostReq {
+  string post_id = 1;
+  string account_id = 2;
+}
+
+message UnlikePostReq {
+  string post_id = 1;
+  string account_id = 2;
+}
+
+message GetLikedPostsByAccountReq {
+  string account_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message CheckLikePostReq {
+  string post_id = 1;
+  string account_id = 2;
+}
+
+message CheckLikePostRes {
+  bool is_liked = 1;
+}
+
+message CheckLikePostByIdsReq {
+  repeated string post_ids = 1;
+  string account_id = 2;
+}
+
+message CheckLikePostByIdsRes {
+  repeated string post_ids = 1; // List of post IDs that the account has liked
+}
+
+// Favorite Messages
+message FavoritePostReq {
+  string post_id = 1;
+  string account_id = 2;
+}
+
+message UnfavoritePostReq {
+  string post_id = 1;
+  string account_id = 2;
+}
+
+message GetFavoritePostsByAccountReq {
+  string account_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message CheckFavoritePostReq {
+  string post_id = 1;
+  string account_id = 2;
+}
+
+message CheckFavoritePostRes {
+  bool is_favorited = 1;
+}
+
+message CheckFavoritePostByIdsReq {
+  repeated string post_ids = 1;
+  string account_id = 2;
+}
+
+message CheckFavoritePostByIdsRes {
+  repeated string post_ids = 1; // List of post IDs that the account has favorited
+}

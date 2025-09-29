@@ -13,7 +13,9 @@ service OtpService {
   rpc Verify(VerifyRequest) returns (VerifyResponse);
   rpc Get(GetRequest) returns (GetResponse);
   rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
-  rpc SendEmail(SendEmailRequest) returns (SendEmailResponse);
+  // Email OTP methods
+  rpc CreateByEmail(CreateByEmailRequest) returns (CreateByEmailResponse);
+  rpc VerifyByEmail(VerifyByEmailRequest) returns (VerifyByEmailResponse);
 }
 
 // Hello request and response
@@ -50,7 +52,7 @@ message GetRequest {
 }
 
 message GetResponse {
-   string code = 1;
+  string code = 1;
 }
 
 // Send message request and response
@@ -69,5 +71,24 @@ message SendEmailRequest {
 }
 
 message SendEmailResponse {
+  bool status = 1;
+}
+
+// Create OTP by email request and response
+message CreateByEmailRequest {
+  string email = 1;
+}
+
+message CreateByEmailResponse {
+  bool status = 1;
+}
+
+// Verify OTP by email request and response
+message VerifyByEmailRequest {
+  string email = 1;
+  string code = 2;
+}
+
+message VerifyByEmailResponse {
   bool status = 1;
 }

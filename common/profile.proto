@@ -51,7 +51,9 @@ message CreateRequest {
   string gender = 4;
   string birth_day = 5;
   string mood = 6;
-  bool is_adult = 7;
+  bool   is_adult = 7;
+  string email = 8;
+  bool   email_verified = 9;
 }
 
 message CreateResponse {

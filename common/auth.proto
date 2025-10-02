@@ -128,6 +128,8 @@ message GetMyAccountRequest {
 message GetMyAccountResponse {
     string id = 1;
     string phone = 2;
+    string email = 3;
+    bool   email_verified = 4;
 }
 
 // Social login request supports multiple providers and multi-audience for OIDC

@@ -18,6 +18,8 @@ message Profile {
   repeated string badges = 8;
   bool is_subscription = 9;
   bool is_adult = 10;
+  string email = 11;
+  bool email_verified = 12;
 }
 
 service ProfileService {
@@ -52,8 +54,6 @@ message CreateRequest {
   string birth_day = 5;
   string mood = 6;
   bool   is_adult = 7;
-  string email = 8;
-  bool   email_verified = 9;
 }
 
 message CreateResponse {

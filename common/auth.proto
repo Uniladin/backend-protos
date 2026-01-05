@@ -25,6 +25,9 @@ service AuthService {
     rpc GetMyAccount (GetMyAccountRequest) returns (GetMyAccountResponse);
     // Social login
     rpc SocialLogin (SocialLoginRequest) returns (LoginResponse);
+    // Admin login
+    rpc AdminLogin (AdminLoginRequest) returns (LoginResponse);
+
     // Change password (only requires user id and new password)
     rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse);
     rpc ChangePasswordByEmail (ChangePasswordByEmailRequest) returns (ChangePasswordResponse);
@@ -137,4 +140,10 @@ message SocialLoginRequest {
     string provider = 1;
     // ID token for OIDC (Google, Apple) or access token for Facebook
     string token = 2;
+}
+
+// Admin login request
+message AdminLoginRequest {
+    string username = 1;
+    string password = 2;
 }

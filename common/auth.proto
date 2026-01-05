@@ -147,3 +147,16 @@ message AdminLoginRequest {
     string username = 1;
     string password = 2;
 }
+
+// Admin status enum
+enum AdminStatus {
+    UNACTIVE = 0;
+    ACTIVE = 1;
+}
+
+// Admin role enum
+enum AdminRole {
+    ADMIN_ROLE_UNSPECIFIED = 0;
+    ADMIN = 1;
+    SUPER_ADMIN = 999;
+}

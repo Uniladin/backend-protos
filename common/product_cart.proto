@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+package productcartpb;
+option go_package = "productcartpb/";
+
+service ProductCartService {
+  rpc CreateProductCart(CreateProductCartRequest) returns (CreateProductCartResponse) {}
+  rpc AddProductCartImage(AddProductCartImageRequest) returns (AddProductCartImageResponse) {}
+  rpc GetProductCartsByPostId(GetProductCartsByPostIdRequest) returns (GetProductCartsByPostIdResponse) {}
+  rpc UpdateProductCart(UpdateProductCartRequest) returns (UpdateProductCartResponse) {}
+  rpc DeleteProductCart(DeleteProductCartRequest) returns (DeleteProductCartResponse) {}
+}
+
+// Product Cart Messages
+message ProductCartData {
+  string id = 1;
+  string post_id = 2;
+  string name = 3;
+  string link = 4;
+  string price = 5;
+  string sale_price = 6;
+  string status = 7;
+  string created_at = 8;
+  string updated_at = 9;
+  repeated ProductCartImageData images = 10;
+}
+
+message ProductCartImageData {
+  string id = 1;
+  string product_cart_id = 2;
+  string image_id = 3;
+  string image_url = 4;
+  int32 position = 5;
+  string status = 6;
+  string created_at = 7;
+}
+
+// Input message for creating product cart images
+message ProductCartImageInput {
+  string image_id = 1;
+  string image_url = 2;
+  int32 position = 3;
+}
+
+// Create Product Cart
+message CreateProductCartRequest {
+  string post_id = 1;
+  string name = 2;
+  string link = 3;
+  string price = 4;
+  string sale_price = 5;
+  repeated ProductCartImageInput images = 6;
+}
+
+message CreateProductCartResponse {
+  bool success = 1;
+  ProductCartData product_cart = 2;
+}
+
+// Add Product Cart Image
+message AddProductCartImageRequest {
+  string product_cart_id = 1;
+  string image_id = 2;
+  string image_url = 3;
+  int32 position = 4;
+}
+
+message AddProductCartImageResponse {
+  bool success = 1;
+  ProductCartImageData image = 2;
+}
+
+// Get Product Carts By Post ID
+message GetProductCartsByPostIdRequest {
+  string post_id = 1;
+}
+
+message GetProductCartsByPostIdResponse {
+  repeated ProductCartData product_carts = 1;
+}
+
+// Update Product Cart
+message UpdateProductCartRequest {
+  string id = 1;
+  string name = 2;
+  string link = 3;
+  string price = 4;
+  string sale_price = 5;
+  repeated ProductCartImageInput images = 6;
+}
+
+message UpdateProductCartResponse {
+  bool success = 1;
+  ProductCartData product_cart = 2;
+}
+
+// Delete Product Cart
+message DeleteProductCartRequest {
+  string id = 1;
+}
+
+message DeleteProductCartResponse {
+  bool success = 1;
+}

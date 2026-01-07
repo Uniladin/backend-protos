@@ -14,6 +14,7 @@ service PostService {
   rpc GetPosts (GetPostsReq) returns (GetPostsRes);
   rpc UpdatePost (UpdatePostReq) returns (UpdatePostRes);
   rpc DeletePost (DeletePostReq) returns (google.protobuf.Empty);
+  rpc SoftDeletePost (DeletePostReq) returns (google.protobuf.Empty);
   rpc GetPostsByAccount (GetPostsByAccountReq) returns (GetPostsRes);
   rpc GetPostsByCategory (GetPostsByCategoryReq) returns (GetPostsRes);
   rpc GetPostsByHashtag (GetPostsByHashtagReq) returns (GetPostsRes);
@@ -39,6 +40,9 @@ service PostService {
   rpc GetCategories (GetCategoriesReq) returns (GetCategoriesRes);
   rpc UpdateCategory (UpdateCategoryReq) returns (UpdateCategoryRes);
   rpc DeleteCategory (DeleteCategoryReq) returns (google.protobuf.Empty);
+
+  // Admin operations
+  rpc AdminListPosts (AdminListPostsReq) returns (AdminListPostsRes);
 }
 
 // Post Messages
@@ -50,6 +54,7 @@ message CreatePostReq {
   Affiliate affiliate = 5;
   string account_id = 6;
   string media_url = 7;
+  string visibility = 8; // draft, private, public
 }
 
 message CreatePostRes {
@@ -88,6 +93,7 @@ message UpdatePostReq {
   string category_id = 5;
   Affiliate affiliate = 6;
   string media_url = 7;
+  string visibility = 8; // draft, private, public
 }
 
 message UpdatePostRes {
@@ -195,6 +201,9 @@ message Post {
   int32 share_count = 13;
   Category category = 14; // Include category details
   string media_url = 15; // Single video/file link
+  string status = 16; // pending, approved, rejected, banned, deleted
+  string visibility = 17; // draft, private, public
+  google.protobuf.Timestamp deleted_at = 18;
 }
 
 message Category {
@@ -281,6 +290,27 @@ message CheckFavoritePostRes {
 message CheckFavoritePostByIdsReq {
   repeated string post_ids = 1;
   string account_id = 2;
+}
+
+// Admin Messages
+message AdminListPostsReq {
+  string category_id = 1;
+  string author_id = 2;
+  repeated string hashtags = 3;
+  string status = 4; // pending, approved, rejected, banned, deleted
+  string visibility = 5; // draft, private, public
+  string search_text = 6;
+  int32 limit = 7;
+  int32 offset = 8;
+  string sort_by = 9; // created_at, updated_at, like_count, etc.
+  string order = 10; // asc, desc
+}
+
+message AdminListPostsRes {
+  repeated Post posts = 1;
+  int32 total = 2;
+  int32 limit = 3;
+  int32 offset = 4;
 }
 
 message CheckFavoritePostByIdsRes {

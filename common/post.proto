@@ -88,13 +88,14 @@ message GetPostsRes {
 
 message UpdatePostReq {
   string          post_id     = 1;
-  string          title       = 2;
-  string          description = 3;
-  repeated string hashtags    = 4;
-  string          category_id = 5;
-  Affiliate       affiliate   = 6;
-  string          media_url   = 7;
-  string          visibility  = 8; // draft, private, public
+  string          account_id  = 2;
+  string          title       = 3;
+  string          description = 4;
+  repeated string hashtags    = 5;
+  string          category_id = 6;
+  Affiliate       affiliate   = 7;
+  string          media_url   = 8;
+  string          visibility  = 9; // draft, private, public
 }
 
 message UpdatePostRes {

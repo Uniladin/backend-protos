@@ -26,11 +26,18 @@ service AuthService {
     // Social login
     rpc SocialLogin (SocialLoginRequest) returns (LoginResponse);
     // Admin login
-    rpc AdminLogin (AdminLoginRequest) returns (LoginResponse);
+    rpc AdminLogin (AdminLoginRequest) returns (AdminLoginResponse);
 
     // Change password (only requires user id and new password)
     rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse);
     rpc ChangePasswordByEmail (ChangePasswordByEmailRequest) returns (ChangePasswordResponse);
+
+    // Admin account management
+    rpc CreateAdminAccount (CreateAdminAccountRequest) returns (CreateAdminAccountResponse);
+    rpc UpdateAdminAccount (UpdateAdminAccountRequest) returns (UpdateAdminAccountResponse);
+    rpc UpdateAdminPassword (UpdateAdminPasswordRequest) returns (UpdateAdminPasswordResponse);
+    rpc ListAdminAccounts (ListAdminAccountsRequest) returns (ListAdminAccountsResponse);
+    rpc GetAdminAccount (GetAdminAccountRequest) returns (GetAdminAccountResponse);
 }
 
 // Login request and response
@@ -159,4 +166,104 @@ enum AdminRole {
     ADMIN_ROLE_UNSPECIFIED = 0;
     ADMIN = 1;
     SUPER_ADMIN = 999;
+}
+
+// Admin account info message
+message AdminAccountInfo {
+    string id = 1;
+    string username = 2;
+    string name = 3;
+    string email = 4;
+    string phone = 5;
+    AdminRole role = 6;
+    AdminStatus status = 7;
+    string avatar_image_id = 8;
+    string avatar_url = 9;
+    string last_login_at = 10;
+    string created_at = 11;
+    string updated_at = 12;
+}
+
+// Admin login response (extended with admin info)
+message AdminLoginResponse {
+    string access_token = 1;
+    string ws_token = 2;
+    string refresh_token = 3;
+    int32 expires_in = 4;
+    AdminAccountInfo admin = 5;
+}
+
+// Create admin account request
+message CreateAdminAccountRequest {
+    string requester_id = 1;  // ID of admin making the request (for authorization)
+    string username = 2;
+    string password = 3;
+    string name = 4;
+    string email = 5;
+    string phone = 6;
+    AdminRole role = 7;
+    string avatar_image_id = 8;
+    string avatar_url = 9;
+}
+
+// Create admin account response
+message CreateAdminAccountResponse {
+    bool success = 1;
+    AdminAccountInfo admin = 2;
+}
+
+// Update admin account request
+message UpdateAdminAccountRequest {
+    string requester_id = 1;  // ID of admin making the request (for authorization)
+    string admin_id = 2;      // ID of admin to update
+    string name = 3;
+    string phone = 4;
+    AdminRole role = 5;
+    AdminStatus status = 6;
+    string avatar_image_id = 7;
+    string avatar_url = 8;
+}
+
+// Update admin account response
+message UpdateAdminAccountResponse {
+    bool success = 1;
+    AdminAccountInfo admin = 2;
+}
+
+// Update admin password request
+message UpdateAdminPasswordRequest {
+    string requester_id = 1;  // ID of admin making the request
+    string admin_id = 2;      // ID of admin whose password to update
+    string new_password = 3;
+}
+
+// Update admin password response
+message UpdateAdminPasswordResponse {
+    bool success = 1;
+}
+
+// List admin accounts request
+message ListAdminAccountsRequest {
+    int32 page = 1;
+    int32 limit = 2;
+    AdminStatus status = 3;   // Optional filter by status
+    AdminRole role = 4;       // Optional filter by role
+}
+
+// List admin accounts response
+message ListAdminAccountsResponse {
+    repeated AdminAccountInfo admins = 1;
+    int32 total = 2;
+    int32 page = 3;
+    int32 limit = 4;
+}
+
+// Get admin account request
+message GetAdminAccountRequest {
+    string admin_id = 1;
+}
+
+// Get admin account response
+message GetAdminAccountResponse {
+    AdminAccountInfo admin = 1;
 }

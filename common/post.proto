@@ -40,6 +40,8 @@ service PostService {
   rpc GetCategories (GetCategoriesReq) returns (GetCategoriesRes);
   rpc UpdateCategory (UpdateCategoryReq) returns (UpdateCategoryRes);
   rpc DeleteCategory (DeleteCategoryReq) returns (google.protobuf.Empty);
+  rpc SoftDeleteCategory (DeleteCategoryReq) returns (google.protobuf.Empty);
+  rpc UpdateCategoryStatus (UpdateCategoryStatusReq) returns (google.protobuf.Empty);
 
   // Admin operations
   rpc AdminListPosts (AdminListPostsReq) returns (AdminListPostsRes);
@@ -151,6 +153,7 @@ message CreateCategoryReq {
   string parent_id   = 3; // For hierarchical categories
   string icon        = 4;
   int32  sort_order  = 5;
+  string created_by  = 6;
 }
 
 message CreateCategoryRes {
@@ -196,6 +199,11 @@ message DeleteCategoryReq {
   string category_id = 1;
 }
 
+message UpdateCategoryStatusReq {
+  string category_id = 1;
+  bool   is_active   = 2;
+}
+
 // Data models
 message Post {
   string                    id            = 1;
@@ -230,6 +238,9 @@ message Category {
   google.protobuf.Timestamp created_at  = 8;
   google.protobuf.Timestamp updated_at  = 9;
   int32                     post_count  = 10;
+  string                    slug        = 11;
+  string                    created_by  = 12;
+  google.protobuf.Timestamp deleted_at  = 13;
 }
 
 message Affiliate {

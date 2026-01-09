@@ -33,6 +33,7 @@ service SocialService {
   rpc GetRelationshipByAccountIds(GetRelationshipByAccountIdsRequest) returns (GetRelationshipByAccountIdsResponse);
 
   rpc GetFollowersCount(GetFollowersCountRequest) returns (GetFollowersCountResponse);
+  rpc GetFollowingCount(GetFollowingCountRequest) returns (GetFollowingCountResponse);
 
   // Reset all relationships between two users
   rpc ResetRelationship(ResetRelationshipRequest) returns (ResetRelationshipResponse);
@@ -200,6 +201,13 @@ message GetFollowersCountRequest {
   string account_id = 1;
 }
 message GetFollowersCountResponse {
+  int32 count = 1;
+}
+
+message GetFollowingCountRequest {
+  string account_id = 1;
+}
+message GetFollowingCountResponse {
   int32 count = 1;
 }
 

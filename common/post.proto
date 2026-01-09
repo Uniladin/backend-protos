@@ -44,6 +44,10 @@ service PostService {
   // Admin operations
   rpc AdminListPosts (AdminListPostsReq) returns (AdminListPostsRes);
   rpc AdminChangePostStatus (AdminChangePostStatusReq) returns (google.protobuf.Empty);
+
+  // Stats operations
+  rpc GetPublicPostsCountByAccount (GetPublicPostsCountByAccountReq) returns (GetPublicPostsCountByAccountRes);
+  rpc GetLikedPostsCountByAccount (GetLikedPostsCountByAccountReq) returns (GetLikedPostsCountByAccountRes);
 }
 
 // Post Messages
@@ -329,4 +333,21 @@ message AdminChangePostStatusReq {
   string post_id = 1;
   string status  = 2; // pending, approved, restricted, banned, deleted
   string reason  = 3; // Reason for status change
+}
+
+// Stats Messages
+message GetPublicPostsCountByAccountReq {
+  string account_id = 1;
+}
+
+message GetPublicPostsCountByAccountRes {
+  int32 count = 1;
+}
+
+message GetLikedPostsCountByAccountReq {
+  string account_id = 1;
+}
+
+message GetLikedPostsCountByAccountRes {
+  int32 count = 1;
 }

@@ -7,6 +7,7 @@ service ProductCartService {
   rpc CreateProductCart(CreateProductCartRequest) returns (CreateProductCartResponse) {}
   rpc AddProductCartImage(AddProductCartImageRequest) returns (AddProductCartImageResponse) {}
   rpc GetProductCartsByPostId(GetProductCartsByPostIdRequest) returns (GetProductCartsByPostIdResponse) {}
+  rpc GetProductCartsByUserId(GetProductCartsByUserIdRequest) returns (GetProductCartsByUserIdResponse) {}
   rpc UpdateProductCart(UpdateProductCartRequest) returns (UpdateProductCartResponse) {}
   rpc DeleteProductCart(DeleteProductCartRequest) returns (DeleteProductCartResponse) {}
 }
@@ -14,15 +15,16 @@ service ProductCartService {
 // Product Cart Messages
 message ProductCartData {
   string id = 1;
-  string post_id = 2;
-  string name = 3;
-  string link = 4;
-  string price = 5;
-  string sale_price = 6;
-  string status = 7;
-  string created_at = 8;
-  string updated_at = 9;
-  repeated ProductCartImageData images = 10;
+  repeated string post_ids = 2;
+  string user_id = 3;
+  string name = 4;
+  string link = 5;
+  string price = 6;
+  string sale_price = 7;
+  string status = 8;
+  string created_at = 9;
+  string updated_at = 10;
+  repeated ProductCartImageData images = 11;
 }
 
 message ProductCartImageData {
@@ -44,12 +46,13 @@ message ProductCartImageInput {
 
 // Create Product Cart
 message CreateProductCartRequest {
-  string post_id = 1;
-  string name = 2;
-  string link = 3;
-  string price = 4;
-  string sale_price = 5;
-  repeated ProductCartImageInput images = 6;
+  repeated string post_ids = 1;
+  string user_id = 2;
+  string name = 3;
+  string link = 4;
+  string price = 5;
+  string sale_price = 6;
+  repeated ProductCartImageInput images = 7;
 }
 
 message CreateProductCartResponse {
@@ -79,6 +82,15 @@ message GetProductCartsByPostIdResponse {
   repeated ProductCartData product_carts = 1;
 }
 
+// Get Product Carts By User ID
+message GetProductCartsByUserIdRequest {
+  string user_id = 1;
+}
+
+message GetProductCartsByUserIdResponse {
+  repeated ProductCartData product_carts = 1;
+}
+
 // Update Product Cart
 message UpdateProductCartRequest {
   string id = 1;
@@ -87,6 +99,7 @@ message UpdateProductCartRequest {
   string price = 4;
   string sale_price = 5;
   repeated ProductCartImageInput images = 6;
+  repeated string post_ids = 7;
 }
 
 message UpdateProductCartResponse {

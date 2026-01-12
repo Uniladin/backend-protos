@@ -10,12 +10,14 @@ service ProductCartService {
   rpc GetProductCartsByUserId(GetProductCartsByUserIdRequest) returns (GetProductCartsByUserIdResponse) {}
   rpc UpdateProductCart(UpdateProductCartRequest) returns (UpdateProductCartResponse) {}
   rpc DeleteProductCart(DeleteProductCartRequest) returns (DeleteProductCartResponse) {}
+  rpc LinkProductCartsToPost(LinkProductCartsToPostRequest) returns (LinkProductCartsToPostResponse) {}
+  rpc UpdateLinkProductCartsToPost(UpdateLinkProductCartsToPostRequest) returns (UpdateLinkProductCartsToPostResponse) {}
 }
 
 // Product Cart Messages
 message ProductCartData {
   string id = 1;
-  repeated string post_ids = 2;
+  // repeated string post_ids = 2;
   string user_id = 3;
   string name = 4;
   string link = 5;
@@ -114,4 +116,26 @@ message DeleteProductCartRequest {
 
 message DeleteProductCartResponse {
   bool success = 1;
+}
+
+// Link Product Carts to Post
+message LinkProductCartsToPostRequest {
+  string post_id = 1;
+  repeated string product_cart_ids = 2;
+}
+
+message LinkProductCartsToPostResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Update Link Product Carts to Post
+message UpdateLinkProductCartsToPostRequest {
+  string post_id = 1;
+  repeated string product_cart_ids = 2;
+}
+
+message UpdateLinkProductCartsToPostResponse {
+  bool success = 1;
+  string message = 2;
 }

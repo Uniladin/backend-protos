@@ -46,6 +46,16 @@ service PostService {
   // Admin operations
   rpc AdminListPosts (AdminListPostsReq) returns (AdminListPostsRes);
   rpc AdminChangePostStatus (AdminChangePostStatusReq) returns (google.protobuf.Empty);
+  rpc AdminGetReport (AdminGetReportReq) returns (AdminGetReportRes);
+  rpc AdminListReports (AdminListReportsReq) returns (AdminListReportsRes);
+
+  // Report operations
+  rpc CreateReport (CreateReportReq) returns (CreateReportRes);
+  rpc MarkReportReviewing (MarkReportReviewingReq) returns (google.protobuf.Empty);
+  rpc ResolveReport (ResolveReportReq) returns (google.protobuf.Empty);
+  rpc RejectReport (RejectReportReq) returns (google.protobuf.Empty);
+  rpc GetReportsByReporter (GetReportsByReporterReq) returns (GetReportsByReporterRes);
+  rpc GetReportsByReporterCursor (GetReportsByReporterCursorReq) returns (GetReportsByReporterCursorRes);
 
   // Stats operations
   rpc GetPublicPostsCountByAccount (GetPublicPostsCountByAccountReq) returns (GetPublicPostsCountByAccountRes);
@@ -171,9 +181,9 @@ message GetCategoryRes {
 }
 
 message GetCategoriesReq {
-  string parent_id = 1; // Empty for root categories
-  int32  limit     = 2;
-  int32  offset    = 3;
+  string        parent_id = 1; // Empty for root categories
+  int32         limit     = 2;
+  int32         offset    = 3;
   optional bool is_active = 4; // Filter by active status
 }
 
@@ -250,6 +260,22 @@ message Affiliate {
   string title     = 3;
 }
 
+message Report {
+  string                    id             = 1;
+  string                    target_type    = 2; // post, comment, user
+  string                    target_id      = 3;
+  string                    reason         = 4;
+  string                    description    = 5;
+  string                    reporter_id    = 6;
+  string                    status         = 7; // pending, reviewing, resolved, rejected
+  string                    resolve_report = 8; // remove_content, restrict_content, warning_user
+  string                    note           = 9;
+  google.protobuf.Timestamp created_at     = 10;
+  google.protobuf.Timestamp updated_at     = 11;
+  string                    resolved_by    = 12;
+  google.protobuf.Timestamp resolved_at    = 13;
+}
+
 // Like Messages
 message LikePostReq {
   string post_id    = 1;
@@ -316,7 +342,90 @@ message CheckFavoritePostByIdsReq {
   string          account_id = 2;
 }
 
+message CheckFavoritePostByIdsRes {
+  repeated string post_ids = 1; // List of post IDs that the account has favorited
+}
+
+// Report Messages
+message CreateReportReq {
+  string target_type = 1; // post, comment, user
+  string target_id   = 2;
+  string reason      = 3; // spam, sensitive, violence, scam, other
+  string description = 4;
+  string reporter_id = 5;
+}
+
+message CreateReportRes {
+  bool   success = 1;
+  string message = 2;
+}
+
+message MarkReportReviewingReq {
+  string report_id = 1;
+}
+
+message ResolveReportReq {
+  string report_id      = 1;
+  string resolve_report = 2; // remove_content, restrict_content, warning_user
+  string note           = 3;
+  string resolved_by    = 4;
+}
+
+message RejectReportReq {
+  string report_id   = 1;
+  string note        = 2;
+  string resolved_by = 3;
+}
+
+message GetReportsByReporterReq {
+  string reporter_id = 1;
+  int32  limit       = 2;
+  int32  offset      = 3;
+}
+
+message GetReportsByReporterRes {
+  repeated Report reports = 1;
+  int32           total   = 2;
+  int32           limit   = 3;
+  int32           offset  = 4;
+}
+
+message GetReportsByReporterCursorReq {
+  string reporter_id = 1;
+  int32  page_size   = 2;
+  string page_state  = 3;
+}
+
+message GetReportsByReporterCursorRes {
+  repeated Report reports         = 1;
+  string          next_page_state = 2;
+}
+
 // Admin Messages
+message AdminGetReportReq {
+  string report_id = 1;
+}
+
+message AdminGetReportRes {
+  Report report = 1;
+}
+
+message AdminListReportsReq {
+  string target_type = 1;
+  string target_id   = 2;
+  string reporter_id = 3;
+  string status      = 4; // pending, reviewing, resolved, rejected
+  int32  limit       = 5;
+  int32  offset      = 6;
+}
+
+message AdminListReportsRes {
+  repeated Report reports = 1;
+  int32           total   = 2;
+  int32           limit   = 3;
+  int32           offset  = 4;
+}
+
 message AdminListPostsReq {
   string          category_id = 1;
   string          author_id   = 2;
@@ -335,10 +444,6 @@ message AdminListPostsRes {
   int32         total  = 2;
   int32         limit  = 3;
   int32         offset = 4;
-}
-
-message CheckFavoritePostByIdsRes {
-  repeated string post_ids = 1; // List of post IDs that the account has favorited
 }
 
 message AdminChangePostStatusReq {

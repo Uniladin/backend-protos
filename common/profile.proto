@@ -20,6 +20,7 @@ message Profile {
   bool is_adult = 10;
   string email = 11;
   bool email_verified = 12;
+  string name = 13;
 }
 
 service ProfileService {
@@ -54,6 +55,7 @@ message CreateRequest {
   string birth_day = 5;
   string mood = 6;
   bool   is_adult = 7;
+  string name = 8;
 }
 
 message CreateResponse {
@@ -92,6 +94,7 @@ message UpdateRequest {
   RepeatedStringValue badges = 7;
   google.protobuf.BoolValue is_subscription = 8;
   google.protobuf.BoolValue is_adult = 9;
+  string name = 10;
 }
 
 message UpdateResponse {

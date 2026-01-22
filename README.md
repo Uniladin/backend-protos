@@ -1,7 +1,7 @@
 ## Use Go
 
 ```
-$ git submodule add https://github.com/uniladin/uniladin_proto.git proto
+$ git submodule add https://github.com/Uniladin/backend-protos.git proto
 
 $ go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 

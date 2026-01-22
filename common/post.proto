@@ -60,6 +60,12 @@ service PostService {
   // Stats operations
   rpc GetPublicPostsCountByAccount (GetPublicPostsCountByAccountReq) returns (GetPublicPostsCountByAccountRes);
   rpc GetLikedPostsCountByAccount (GetLikedPostsCountByAccountReq) returns (GetLikedPostsCountByAccountRes);
+
+  // Comment operations
+  rpc CreateComment (CreateCommentReq) returns (CreateCommentRes);
+  rpc GetCommentsByPost (GetCommentsByPostReq) returns (GetCommentsByPostRes);
+  rpc UpdateComment (UpdateCommentReq) returns (UpdateCommentRes);
+  rpc DeleteComment (DeleteCommentReq) returns (google.protobuf.Empty);
 }
 
 // Post Messages
@@ -467,4 +473,64 @@ message GetLikedPostsCountByAccountReq {
 
 message GetLikedPostsCountByAccountRes {
   int32 count = 1;
+}
+
+// Comment Messages
+message CreateCommentReq {
+  string post_id    = 1;
+  string account_id = 2;
+  string comment    = 3; // Optional: text comment
+  string photo_url  = 4; // Optional: photo URL
+  string parent_id  = 5; // Optional: for replies to other comments
+}
+
+message CreateCommentRes {
+  bool   success    = 1;
+  string comment_id = 2;
+  string message    = 3;
+}
+
+message GetCommentsByPostReq {
+  string post_id   = 1;
+  int32  limit     = 2;
+  int32  offset    = 3;
+  string parent_id = 4; // Optional: filter replies to a specific comment
+}
+
+message GetCommentsByPostRes {
+  repeated Comment comments = 1;
+  int32            total    = 2;
+  int32            limit    = 3;
+  int32            offset   = 4;
+}
+
+message UpdateCommentReq {
+  string comment_id = 1;
+  string account_id = 2;
+  string comment    = 3; // Optional: updated text comment
+  string photo_url  = 4; // Optional: updated photo URL
+}
+
+message UpdateCommentRes {
+  bool   success = 1;
+  string message = 2;
+}
+
+message DeleteCommentReq {
+  string comment_id = 1;
+  string account_id = 2;
+}
+
+// Comment data model
+message Comment {
+  string                    id         = 1;
+  string                    post_id    = 2;
+  string                    account_id = 3;
+  string                    parent_id  = 4; // Optional: for replies
+  string                    comment    = 5; // Optional: text comment
+  string                    photo_url  = 6; // Optional: photo URL
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+  google.protobuf.Timestamp deleted_at = 9; // Optional: for soft delete
+  int32                     reply_count = 10; // Number of direct child comments
 }

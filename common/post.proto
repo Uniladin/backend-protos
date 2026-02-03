@@ -81,7 +81,7 @@ message CreatePostReq {
   string          category_id = 4;
   Affiliate       affiliate   = 5;
   string          account_id  = 6;
-  string          media_url   = 7;
+  repeated string media_url   = 7;
   string          visibility  = 8; // draft, private, public
 }
 
@@ -121,7 +121,7 @@ message UpdatePostReq {
   repeated string hashtags    = 5;
   string          category_id = 6;
   Affiliate       affiliate   = 7;
-  string          media_url   = 8;
+  repeated string media_url   = 8;
   string          visibility  = 9; // draft, private, public
 }
 
@@ -242,7 +242,7 @@ message Post {
   int32                     comment_count = 12;
   int32                     share_count   = 13;
   Category                  category      = 14; // Include category details
-  string                    media_url     = 15; // Single video/file link
+  repeated string           media_url     = 15; // Single video/file link
   string                    status        = 16; // pending, approved, restricted, banned, deleted
   string                    visibility    = 17; // draft, private, public
   google.protobuf.Timestamp deleted_at    = 18;

@@ -111,7 +111,6 @@ message ListPersonaEloHistoryResponse {
 message PersonaCategory {
   string id = 1;
   string name = 2;
-  string slug = 3;
   string description = 4;
   bool is_active = 5;
   string created_at = 6;

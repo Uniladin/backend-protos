@@ -1,0 +1,145 @@
+syntax = "proto3";
+
+package persona;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "personapb/";
+
+service PersonaService {
+  rpc CreatePersona(CreatePersonaRequest) returns (CreatePersonaResponse);
+  rpc GetPersona(GetPersonaRequest) returns (Persona);
+  rpc ListPersonas(ListPersonasRequest) returns (ListPersonasResponse);
+  rpc UpdatePersona(UpdatePersonaRequest) returns (Persona);
+  rpc DeletePersona(DeletePersonaRequest) returns (google.protobuf.Empty) {}
+  rpc GetPersonaForValidation(GetPersonaRequest) returns (Persona);
+  rpc GetActivePersonaForValidation(GetPersonaRequest) returns (Persona);
+  rpc AdjustPersonaElo(AdjustPersonaEloRequest) returns (AdjustPersonaEloResponse);
+  rpc ListPersonaEloHistory(ListPersonaEloHistoryRequest) returns (ListPersonaEloHistoryResponse);
+}
+
+message Persona {
+  string id = 1;
+  string account_id = 2;
+  string nickname = 3;
+  string category_id = 4;  // optional, empty string if not set
+  int32 elo = 5;
+  string status = 6;  // pending, active, banned, deleted
+  string created_at = 7;
+  string updated_at = 8;
+}
+
+message CreatePersonaRequest {
+  string account_id = 1;
+  string nickname = 2;
+  string category_id = 3;
+}
+
+message CreatePersonaResponse {
+  Persona persona = 1;
+}
+
+message GetPersonaRequest {
+  string id = 1;
+  string account_id = 2;  // required for GetPersona (ownership); optional for GetPersonaForValidation
+}
+
+message ListPersonasRequest {
+  string account_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message ListPersonasResponse {
+  repeated Persona personas = 1;
+}
+
+message UpdatePersonaRequest {
+  string id = 1;
+  string account_id = 2;
+  string nickname = 3;
+  string category_id = 4;
+}
+
+message DeletePersonaRequest {
+  string id = 1;
+  string account_id = 2;
+}
+
+// ELO action types; default deltas are defined in backend-profile (elo_action_types.go).
+enum EloActionType {
+  ELO_ACTION_UNSPECIFIED = 0;  // invalid for AdjustPersonaElo
+  POST_LIKED = 1;
+  POST_UNLIKED = 2;
+  COMMENT_RECEIVED = 3;
+  GAME_WON = 4;
+  GAME_LOST = 5;
+  ADMIN_ADJUST = 6;   // must pass delta in request
+  CREATE_POST = 7;   // optional; clear name for "create post"
+}
+
+message AdjustPersonaEloRequest {
+  string persona_id = 1;
+  EloActionType action_type = 2;
+  int32 delta = 3;  // optional override; if 0 or unset, use default for action_type
+}
+
+message AdjustPersonaEloResponse {
+  Persona persona = 1;  // updated persona with new elo
+}
+
+message PersonaEloHistoryEntry {
+  string id = 1;
+  string persona_id = 2;
+  int32 delta = 3;
+  string action_type = 4;
+  string source = 5;
+  string created_at = 6;
+}
+
+message ListPersonaEloHistoryRequest {
+  string persona_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message ListPersonaEloHistoryResponse {
+  repeated PersonaEloHistoryEntry entries = 1;
+}
+
+// PersonaCategory
+message PersonaCategory {
+  string id = 1;
+  string name = 2;
+  string slug = 3;
+  string description = 4;
+  bool is_active = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+service PersonaCategoryService {
+  rpc CreatePersonaCategory(CreatePersonaCategoryRequest) returns (PersonaCategory);
+  rpc ListPersonaCategories(ListPersonaCategoriesRequest) returns (ListPersonaCategoriesResponse);
+  rpc GetPersonaCategory(GetPersonaCategoryRequest) returns (PersonaCategory);
+}
+
+message CreatePersonaCategoryRequest {
+  string name = 1;
+  string slug = 2;
+  string description = 3;
+}
+
+message ListPersonaCategoriesRequest {
+  int32 limit = 1;
+  int32 offset = 2;
+  bool active_only = 3;
+}
+
+message ListPersonaCategoriesResponse {
+  repeated PersonaCategory categories = 1;
+}
+
+message GetPersonaCategoryRequest {
+  string id = 1;
+}

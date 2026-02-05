@@ -71,6 +71,9 @@ service PostService {
   rpc CreatePostShareLink (CreatePostShareLinkReq) returns (CreatePostShareLinkRes);
   rpc GetPostShareLink (GetPostShareLinkReq) returns (GetPostShareLinkRes);
   rpc GetPostShareLinksByPost (GetPostShareLinksByPostReq) returns (GetPostShareLinksByPostRes);
+
+  // Elo review operations
+  rpc ReviewEloPost (ReviewEloPostReq) returns (ReviewEloPostRes);
 }
 
 // Post Messages
@@ -83,6 +86,7 @@ message CreatePostReq {
   string          account_id  = 6;
   repeated string media_url   = 7;
   string          visibility  = 8; // draft, private, public
+  string          persona_id  = 9; // Optional: persona ID for elo review
 }
 
 message CreatePostRes {
@@ -247,6 +251,8 @@ message Post {
   string                    visibility    = 17; // draft, private, public
   google.protobuf.Timestamp deleted_at    = 18;
   string                    status_reason = 19;
+  string                    persona_id    = 20;
+  bool                      elo_reviewed  = 21;
 }
 
 message Category {
@@ -583,4 +589,14 @@ message PostShareLink {
   google.protobuf.Timestamp updated_at = 6;
   int32                     view_count = 7;
   bool                      is_active  = 8;
+}
+
+// Elo Review Messages
+message ReviewEloPostReq {
+  string post_id = 1;
+}
+
+message ReviewEloPostRes {
+  bool   success = 1;
+  string message = 2;
 }

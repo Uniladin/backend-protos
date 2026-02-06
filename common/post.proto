@@ -74,6 +74,11 @@ service PostService {
 
   // Elo review operations
   rpc ReviewEloPost (ReviewEloPostReq) returns (ReviewEloPostRes);
+  rpc ReviewEloComment (ReviewEloCommentReq) returns (ReviewEloCommentRes);
+
+  // Admin comment operations
+  rpc AdminGetListComments (AdminGetListCommentsReq) returns (AdminGetListCommentsRes);
+  rpc AdminDeleteComment (AdminDeleteCommentReq) returns (google.protobuf.Empty);
 }
 
 // Post Messages
@@ -493,6 +498,7 @@ message CreateCommentReq {
   string comment    = 3; // Optional: text comment
   string photo_url  = 4; // Optional: photo URL
   string parent_id  = 5; // Optional: for replies to other comments
+  string persona_id = 6; // Optional: persona ID for elo review
 }
 
 message CreateCommentRes {
@@ -534,16 +540,18 @@ message DeleteCommentReq {
 
 // Comment data model
 message Comment {
-  string                    id         = 1;
-  string                    post_id    = 2;
-  string                    account_id = 3;
-  string                    parent_id  = 4; // Optional: for replies
-  string                    comment    = 5; // Optional: text comment
-  string                    photo_url  = 6; // Optional: photo URL
-  google.protobuf.Timestamp created_at = 7;
-  google.protobuf.Timestamp updated_at = 8;
-  google.protobuf.Timestamp deleted_at = 9; // Optional: for soft delete
-  int32                     reply_count = 10; // Number of direct child comments
+  string                    id           = 1;
+  string                    post_id      = 2;
+  string                    account_id   = 3;
+  string                    parent_id    = 4; // Optional: for replies
+  string                    comment      = 5; // Optional: text comment
+  string                    photo_url    = 6; // Optional: photo URL
+  google.protobuf.Timestamp created_at   = 7;
+  google.protobuf.Timestamp updated_at   = 8;
+  google.protobuf.Timestamp deleted_at   = 9; // Optional: for soft delete
+  int32                     reply_count  = 10; // Number of direct child comments
+  string                    persona_id   = 11; // Optional: persona ID for elo review
+  bool                      elo_reviewed = 12; // Whether this comment has been elo-reviewed
 }
 
 // Share Link Messages
@@ -574,9 +582,9 @@ message GetPostShareLinksByPostReq {
 
 message GetPostShareLinksByPostRes {
   repeated PostShareLink share_links = 1;
-  int32                  total      = 2;
-  int32                  limit     = 3;
-  int32                  offset    = 4;
+  int32                  total       = 2;
+  int32                  limit       = 3;
+  int32                  offset      = 4;
 }
 
 // Share Link data model
@@ -599,4 +607,33 @@ message ReviewEloPostReq {
 message ReviewEloPostRes {
   bool   success = 1;
   string message = 2;
+}
+
+// Elo Review Comment Messages
+message ReviewEloCommentReq {
+  string comment_id = 1;
+}
+
+message ReviewEloCommentRes {
+  bool   success = 1;
+  string message = 2;
+}
+
+// Admin Comment Messages
+message AdminGetListCommentsReq {
+  int32  limit      = 1;
+  int32  offset     = 2;
+  string post_id    = 3;
+  string account_id = 4;
+}
+
+message AdminGetListCommentsRes {
+  repeated Comment comments = 1;
+  int32            total    = 2;
+  int32            limit    = 3;
+  int32            offset   = 4;
+}
+
+message AdminDeleteCommentReq {
+  string comment_id = 1;
 }

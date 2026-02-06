@@ -17,6 +17,8 @@ service PersonaService {
   rpc AdjustPersonaElo(AdjustPersonaEloRequest) returns (AdjustPersonaEloResponse);
   rpc ListPersonaEloHistory(ListPersonaEloHistoryRequest) returns (ListPersonaEloHistoryResponse);
   rpc AdminListPersonas(AdminListPersonasRequest) returns (AdminListPersonasResponse);
+  rpc AdminBanPersona(AdminBanPersonaRequest) returns (Persona);
+  rpc AdminUpdatePersonaCategory(AdminUpdatePersonaCategoryRequest) returns (Persona);
 }
 
 message Persona {
@@ -122,6 +124,15 @@ message AdminListPersonasResponse {
   int32 total = 2;
   int32 limit = 3;
   int32 offset = 4;
+}
+
+message AdminBanPersonaRequest {
+  string persona_id = 1;
+}
+
+message AdminUpdatePersonaCategoryRequest {
+  string persona_id = 1;
+  string category_id = 2;  // optional; empty = remove
 }
 
 // PersonaCategory

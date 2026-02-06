@@ -16,6 +16,7 @@ service PersonaService {
   rpc GetActivePersonaForValidation(GetPersonaRequest) returns (Persona);
   rpc AdjustPersonaElo(AdjustPersonaEloRequest) returns (AdjustPersonaEloResponse);
   rpc ListPersonaEloHistory(ListPersonaEloHistoryRequest) returns (ListPersonaEloHistoryResponse);
+  rpc AdminListPersonas(AdminListPersonasRequest) returns (AdminListPersonasResponse);
 }
 
 message Persona {
@@ -105,6 +106,22 @@ message ListPersonaEloHistoryRequest {
 
 message ListPersonaEloHistoryResponse {
   repeated PersonaEloHistoryEntry entries = 1;
+}
+
+message AdminListPersonasRequest {
+  int32 limit = 1;
+  int32 offset = 2;
+  string sort_by = 3;    // created_at | elo
+  string sort_order = 4; // asc | desc
+  string status = 5;     // optional: pending, active, banned, deleted
+  string category_id = 6; // optional
+}
+
+message AdminListPersonasResponse {
+  repeated Persona personas = 1;
+  int32 total = 2;
+  int32 limit = 3;
+  int32 offset = 4;
 }
 
 // PersonaCategory
